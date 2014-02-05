@@ -28,8 +28,6 @@ Install our package from NuGets Package Manager Console using the following comm
 Samples
 -------
 
-How to:
-
 - [Perform basic video conversions](#basic-conversion)  
 - [Convert from FLV to DVD](#convert-flash-video-to-dvd)  
 - [Convert FLV to MP4 using various transcoding options](#transcoding-options-flv-to-mp4)  
@@ -106,5 +104,6 @@ How to:
     }
 
 
-This software uses [FFmpeg](http://ffmpeg.org) which is licensed under the [LGPLv2.1](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html) license, its source can be downloaded from [here](https://github.com/AydinAdn/MediaToolkit/tree/master/FFMpeg%20src)
+
+MediaToolkit uses [FFmpeg](http://ffmpeg.org) which is licensed under the [LGPLv2.1](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html) license, its source can be downloaded from [here](https://github.com/AydinAdn/MediaToolkit/tree/master/FFMpeg%20src)
 
