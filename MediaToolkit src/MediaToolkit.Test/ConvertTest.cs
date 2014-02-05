@@ -13,69 +13,61 @@ namespace MediaToolkit.Test
         *       once the conversion process is finished.
         * *************************************************/
 
-        public const string InputFilePath  = @"C:\TEST\1.flv";
+        public const string InputFilePath = @"C:\TEST\1.flv";
         public const string OutputFilePath = @"C:\TEST\1.mp4";
 
         [TestCase]
         public void Can_ConvertBasic()
         {
-            var iFile = new MediaFile {Filename = InputFilePath};
-            var oFile = new MediaFile {Filename = OutputFilePath};
+            var inputFile = new MediaFile {Filename = InputFilePath};
+            var outputFile = new MediaFile {Filename = OutputFilePath};
 
             Engine.ConvertProgressEvent += EngineConvertProgressEvent;
             using (var engine = new Engine())
             {
-                engine.Convert(iFile, oFile);
+                engine.Convert(inputFile, outputFile);
             }
         }
 
         [TestCase]
         public void Can_ConvertToDVD()
         {
-            var iFile = new MediaFile {Filename = InputFilePath};
-            var oFile = new MediaFile {Filename = OutputFilePath};
-            var settings = new ConversionOptions {Target = Target.DVD, TargetStandard = TargetStandard.PAL};
-
-            Engine.ConvertProgressEvent += EngineConvertProgressEvent;
-            using (var engine = new Engine())
+            var inputFile = new MediaFile {Filename = InputFilePath};
+            var outputFile = new MediaFile {Filename = OutputFilePath};
+            var conversionOptions = new ConversionOptions
             {
-                engine.Convert(iFile, oFile, settings);
-            }
-        }
-
-        [TestCase]
-        public void publicCan_LimitVideoDuration()
-        {
-            var iFile = new MediaFile {Filename = InputFilePath};
-            var oFile = new MediaFile {Filename = OutputFilePath};
-            var settings = new ConversionOptions {MaxVideoDuration = TimeSpan.FromSeconds(30)};
-
-            Engine.ConvertProgressEvent += EngineConvertProgressEvent;
-            using (var engine = new Engine())
-            {
-                engine.Convert(iFile, oFile, settings);
-            }
-        }
-
-        [TestCase]
-        public void Can_LimitVideoDurationAndMakeVga()
-        {
-            var iFile = new MediaFile {Filename = InputFilePath};
-            var oFile = new MediaFile {Filename = OutputFilePath};
-            var settings = new ConversionOptions
-            {
-                MaxVideoDuration = TimeSpan.FromSeconds(30),
-                VideoSize = VideoSize.Vga
+                Target = Target.DVD,
+                TargetStandard = TargetStandard.PAL
             };
 
             Engine.ConvertProgressEvent += EngineConvertProgressEvent;
             using (var engine = new Engine())
             {
-                engine.Convert(iFile, oFile, settings);
+                engine.Convert(inputFile, outputFile, conversionOptions);
             }
         }
 
-        private void EngineConvertProgressEvent(object sender, ConvertProgressChangedEventArgs e)
+        [TestCase]
+        public void Can_TranscodeUsingConversionOptions()
+        {
+            var inputFile = new MediaFile {Filename = InputFilePath};
+            var outputFile = new MediaFile {Filename = OutputFilePath};
+            var conversionOptions = new ConversionOptions
+            {
+                MaxVideoDuration = TimeSpan.FromSeconds(30),
+                VideoAspectRatio = VideoAspectRatio.R16_9,
+                VideoSize = VideoSize.Hd1080,
+                AudioSampleRate = AudioSampleRate.Hz44100
+            };
+
+            Engine.ConvertProgressEvent += EngineConvertProgressEvent;
+            using (var engine = new Engine())
+            {
+                engine.Convert(inputFile, outputFile, conversionOptions);
+            }
+        }
+
+        private void EngineConvertProgressEvent(object sender, ConvertProgressEventArgs e)
         {
             Console.WriteLine("Bitrate: {0}", e.Bitrate);
             Console.WriteLine("Fps: {0}", e.Fps);
@@ -83,7 +75,6 @@ namespace MediaToolkit.Test
             Console.WriteLine("ProcessedDuration: {0}", e.ProcessedDuration);
             Console.WriteLine("SizeKb: {0}", e.SizeKb);
             Console.WriteLine("TotalDuration: {0}\n", e.TotalDuration);
-            Console.WriteLine(" ");
         }
     }
 }

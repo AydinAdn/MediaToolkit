@@ -10,21 +10,13 @@ namespace MediaToolkit
         internal static string Convert(MediaFile iFile, MediaFile oFile, ConversionOptions settings)
         {
             var commandBuilder = new StringBuilder();
-
-            // If convert settings is null, build basic command.
-            if (settings == null)
-            {
-                commandBuilder.AppendFormat("-i {0} {1}", iFile.Filename, oFile.Filename);
-
-                return commandBuilder.ToString();
-            }
-
-
             commandBuilder.AppendFormat("-i {0} ", iFile.Filename);
 
-            /* ***************
-             * Target settings
-             * ***************/
+            // A basic convert.
+            if (settings == null)
+                return commandBuilder.Append(oFile.Filename).ToString();
+
+            // Physical media conversion (DVD etc)
             if (settings.Target != Target.Default)
             {
                 commandBuilder.Append(" -target ");
@@ -40,29 +32,19 @@ namespace MediaToolkit
                 return commandBuilder.ToString();
             }
 
-
-            /* ***************
-             * Audio settings
-             * ***************/
-
-            // Set audio sample rate
+            // Audio sample rate
             if (settings.AudioSampleRate != AudioSampleRate.Default)
                 commandBuilder.AppendFormat(" -ar {0} ", settings.AudioSampleRate.Remove("Hz"));
 
-
-            /* ***************
-             * Video settings
-             * ***************/
-
-            // Set maximum video duration
+            // Maximum video duration
             if (settings.MaxVideoDuration != null)
                 commandBuilder.AppendFormat(" -t {0} ", settings.MaxVideoDuration);
 
-            // Set video bit rate
+            // Video bit rate
             if (settings.VideoBitRate != null)
                 commandBuilder.AppendFormat(" -b {0}k ", settings.VideoBitRate);
 
-            // Set video size
+            // Video size / resolution
             if (settings.VideoSize != VideoSize.Default)
             {
                 string size = settings.VideoSize.ToLower();
@@ -72,18 +54,17 @@ namespace MediaToolkit
                 commandBuilder.AppendFormat(" -s {0} ", size);
             }
 
-            // Set video aspect ratio
+            // Video aspect ratio
             if (settings.VideoAspectRatio != VideoAspectRatio.Default)
             {
-                string ratio = settings.VideoAspectRatio.ToLower();
+                string ratio = settings.VideoAspectRatio.ToString();
                 ratio = ratio.Substring(1);
-                ratio = ratio.Replace("_", ",");
+                ratio = ratio.Replace("_", ":");
 
                 commandBuilder.AppendFormat(" -aspect {0} ", ratio);
             }
 
-            commandBuilder.AppendFormat(" {0}", oFile.Filename);
-            return commandBuilder.ToString();
+            return commandBuilder.AppendFormat(" {0}", oFile.Filename).ToString();
         }
     }
 }

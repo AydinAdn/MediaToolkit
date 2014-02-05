@@ -2,7 +2,7 @@
 
 namespace MediaToolkit
 {
-    public class ConvertProgressChangedEventArgs : EventArgs
+    public class ConvertProgressEventArgs : EventArgs
     {
         /// <summary>
         ///     Event model to track media conversion.
@@ -13,7 +13,8 @@ namespace MediaToolkit
         /// <param name="fps">The frames per second</param>
         /// <param name="sizeKb">The current size of the converted file</param>
         /// <param name="bitrate">The bit rate of the converted file</param>
-        public ConvertProgressChangedEventArgs(TimeSpan processed, TimeSpan totalDuration, long frame, double fps, int sizeKb, double bitrate)
+        public ConvertProgressEventArgs(TimeSpan processed, TimeSpan totalDuration, long frame, double fps, int sizeKb,
+            double bitrate)
         {
             TotalDuration = totalDuration;
             ProcessedDuration = processed;

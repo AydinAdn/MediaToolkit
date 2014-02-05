@@ -68,7 +68,7 @@ namespace MediaToolkit
             }
         }
 
-        public static event EventHandler<ConvertProgressChangedEventArgs> ConvertProgressEvent;
+        public static event EventHandler<ConvertProgressEventArgs> ConvertProgressEvent;
 
         /// <summary>
         ///     Converts media with conversion options
@@ -142,7 +142,7 @@ namespace MediaToolkit
                         TimeSpan totalDuration = totalMediaDuration;
 
                         ConvertProgressEvent(this,
-                            new ConvertProgressChangedEventArgs(processedDuration, totalDuration, frame, fps, sizeKb,
+                            new ConvertProgressEventArgs(processedDuration, totalDuration, frame, fps, sizeKb,
                                 bitrate));
                     };
 

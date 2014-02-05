@@ -41,7 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandBuilder.cs" />
-    <Compile Include="ConvertProgressChangedEventArgs.cs" />
+    <Compile Include="ConvertProgressEventArgs.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Options\ConversionOptions.cs" />
     <Compile Include="Util\Extensions.cs" />
