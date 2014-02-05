@@ -6,6 +6,7 @@ MediaToolkit is a .NET library which can convert and process both audio and vide
 1. [Functionalities](#functionalities)
 2. [Get started!](#get-started)
 3. [Samples](#samples)
+4. [Licensing](#licensing)
 
 Functionalities
 -------------
@@ -104,7 +105,8 @@ Samples
     }
 
 
-###### Licensing 
+Licensing
+---------  
 - MediaToolkit is licensed under the [MIT license](https://github.com/AydinAdn/MediaToolkit/blob/master/LICENSE.md)
 - MediaToolkit uses [FFmpeg](http://ffmpeg.org), a multimedia framework which is licensed under the [LGPLv2.1 license](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html), its source can be downloaded from [here](https://github.com/AydinAdn/MediaToolkit/tree/master/FFMpeg%20src)
 
