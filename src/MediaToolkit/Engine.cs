@@ -56,7 +56,7 @@ namespace MediaToolkit
             else
             {
                 Stream ffmpegStream = Assembly.GetExecutingAssembly()
-                    .GetManifestResourceStream("MediaToolkit.Resources.ffmpeg.exe.gz");
+                    .GetManifestResourceStream("MediaToolkit.Resources.FFmpeg.exe.gz");
 
                 if (ffmpegStream == null) throw new Exception("FFMpeg GZip stream is null");
 
