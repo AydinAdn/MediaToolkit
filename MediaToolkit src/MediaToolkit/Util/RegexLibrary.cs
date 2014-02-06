@@ -7,47 +7,40 @@ namespace MediaToolkit.Util
     {
         internal static Dictionary<Find, Regex> Index = new Dictionary<Find, Regex>
         {
-            {Find.ConvertDuration,       new Regex(@"Duration:\s*([^ ]*)")},
+            {Find.BitRate,               new Regex(@"([0-9]*)\s*kb/s")},
+            {Find.Duration,              new Regex(@"Duration: ([^,]*), ")},
+
             {Find.ConvertProgressFrame,  new Regex(@"frame=\s*([0-9]*)")},
             {Find.ConvertProgressFps,    new Regex(@"fps=\s*([0-9]*\.?[0-9]*?)")},
             {Find.ConvertProgressSize,   new Regex(@"size=\s*([0-9]*)kB")},
             {Find.ConvertProgressTime,   new Regex(@"time=\s*([^ ]*)")},
-            {Find.ConvertProgressBitrate,new Regex(@"bitrate=\s*([0-9*\.?[0-9]*?)kbits/s")},
-            {Find.HasKeyFrames,          new Regex(@"hasKeyframes\s*:\s*(\w*)")},
-            {Find.HasVideo,              new Regex(@"hasVideo *: (\w*)")},
-            {Find.HasAudio,              new Regex(@"hasAudio *: (\w*)")},
-            {Find.HasMetadata,           new Regex(@"hasMetadata *: (\w*)")},
-            {Find.CanSeekToEnd,          new Regex(@"canSeekToEnd *: (\w*)")},
-            {Find.DataSize,              new Regex(@"datasize *: (\w*)")},
-            {Find.VideoSize,             new Regex(@"videosize *: (\w*)")},
-            {Find.AudioSize,             new Regex(@"audiosize *: (\w*)")},
-            {Find.LastTimeStamp,         new Regex(@"lasttimestamp *: (\w*)")},
-            {Find.LastKeyFrameTimeStamp, new Regex(@"lastkeyframetimestamp *: (\w*)")},
-            {Find.LastKeyFrameLocation,  new Regex(@"lastkeyframelocation *: (\w*)")},
-            {Find.Duration,              new Regex(@"Duration: ([^,]*), start: ([^,]*), bitrate: ([^ ]*)")}
+            {Find.ConvertProgressBitrate,new Regex(@"bitrate=\s*([0-9]*\.?[0-9]*?)kbits/s")},
+
+            {Find.MetaAudio,             new Regex(@"(Stream\s*#[0-9]*:[0-9]*\(?[^\)]*?\)?: Audio:.*)")},
+            {Find.AudioFormatHzChannel,  new Regex(@"Audio:\s*([^,]*),\s([^,]*),\s([^,]*)")},
+
+            {Find.MetaVideo,             new Regex(@"(Stream\s*#[0-9]*:[0-9]*\(?[^\)]*?\)?: Video:.*)")},
+            {Find.VideoFormatColorSize,  new Regex(@"Video:\s*([^,]*),\s*([^,]*,?[^,]*?),?\s*(?=[0-9]*x[0-9]*)([0-9]*x[0-9]*)")},
+            {Find.VideoFps,              new Regex(@"([0-9]*)\s*tbr")},
         };
     }
 
     internal enum Find
     {
-        ConvertDuration,
+        AudioBitRate,
+        AudioFormatHzChannel,
+        AudioSampleRate,
         ConvertProgress,
-        ConvertProgressFrame,
+        ConvertProgressBitrate,
         ConvertProgressFps,
+        ConvertProgressFrame,
         ConvertProgressSize,
         ConvertProgressTime,
-        ConvertProgressBitrate,
-        HasKeyFrames,
-        HasVideo,
-        HasAudio,
-        HasMetadata,
-        CanSeekToEnd,
-        DataSize,
-        VideoSize,
-        AudioSize,
-        LastTimeStamp,
-        LastKeyFrameTimeStamp,
-        LastKeyFrameLocation,
-        Duration
+        Duration,
+        MetaAudio,
+        MetaVideo,
+        BitRate,
+        VideoFormatColorSize,
+        VideoFps
     }
 }

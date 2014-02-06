@@ -35,14 +35,27 @@
     </DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugToConsole|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DebugFFmpegEngine\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;DebugToConsole</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandBuilder.cs" />
     <Compile Include="ConvertProgressEventArgs.cs" />
     <Compile Include="Engine.cs" />
+    <Compile Include="Model\Metadata.cs" />
     <Compile Include="Options\ConversionOptions.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Model\MediaFile.cs" />

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 using MediaToolkit.Model;
 using MediaToolkit.Options;
 using MediaToolkit.Util;
@@ -7,47 +8,52 @@ namespace MediaToolkit
 {
     internal class CommandBuilder
     {
-        internal static string Convert(MediaFile iFile, MediaFile oFile, ConversionOptions settings)
+        internal static string GetMetaData(MediaFile inputFile)
+        {
+            return string.Format("-i \"{0}\" ", inputFile.Filename);
+        }
+
+        internal static string Convert(MediaFile inputFile, MediaFile outputFile, ConversionOptions conversionOptions)
         {
             var commandBuilder = new StringBuilder();
-            commandBuilder.AppendFormat("-i {0} ", iFile.Filename);
+            commandBuilder.AppendFormat("-i \"{0}\" ", inputFile.Filename);
 
             // A basic convert.
-            if (settings == null)
-                return commandBuilder.Append(oFile.Filename).ToString();
+            if (conversionOptions == null)
+                return commandBuilder.AppendFormat(" \"{0}\" ", outputFile.Filename).ToString();
 
             // Physical media conversion (DVD etc)
-            if (settings.Target != Target.Default)
+            if (conversionOptions.Target != Target.Default)
             {
                 commandBuilder.Append(" -target ");
-                if (settings.TargetStandard != TargetStandard.Default)
+                if (conversionOptions.TargetStandard != TargetStandard.Default)
                 {
-                    commandBuilder.AppendFormat("{0}-{1} {2}", settings.TargetStandard.ToLower(),
-                        settings.Target.ToLower(), oFile.Filename);
+                    commandBuilder.AppendFormat(" {0}-{1} \"{2}\" ", conversionOptions.TargetStandard.ToLower(),
+                        conversionOptions.Target.ToLower(), outputFile.Filename);
 
                     return commandBuilder.ToString();
                 }
-                commandBuilder.AppendFormat("{0} {1}", settings.Target.ToLower(), oFile.Filename);
+                commandBuilder.AppendFormat("{0} \"{1}\" ", conversionOptions.Target.ToLower(), outputFile.Filename);
 
                 return commandBuilder.ToString();
             }
 
             // Audio sample rate
-            if (settings.AudioSampleRate != AudioSampleRate.Default)
-                commandBuilder.AppendFormat(" -ar {0} ", settings.AudioSampleRate.Remove("Hz"));
+            if (conversionOptions.AudioSampleRate != AudioSampleRate.Default)
+                commandBuilder.AppendFormat(" -ar {0} ", conversionOptions.AudioSampleRate.Remove("Hz"));
 
             // Maximum video duration
-            if (settings.MaxVideoDuration != null)
-                commandBuilder.AppendFormat(" -t {0} ", settings.MaxVideoDuration);
+            if (conversionOptions.MaxVideoDuration != null)
+                commandBuilder.AppendFormat(" -t {0} ", conversionOptions.MaxVideoDuration);
 
             // Video bit rate
-            if (settings.VideoBitRate != null)
-                commandBuilder.AppendFormat(" -b {0}k ", settings.VideoBitRate);
+            if (conversionOptions.VideoBitRate != null)
+                commandBuilder.AppendFormat(" -b {0}k ", conversionOptions.VideoBitRate);
 
             // Video size / resolution
-            if (settings.VideoSize != VideoSize.Default)
+            if (conversionOptions.VideoSize != VideoSize.Default)
             {
-                string size = settings.VideoSize.ToLower();
+                string size = conversionOptions.VideoSize.ToLower();
                 if (size.StartsWith("_")) size = size.Replace("_", "");
                 if (size.Contains("_")) size = size.Replace("_", "-");
 
@@ -55,16 +61,16 @@ namespace MediaToolkit
             }
 
             // Video aspect ratio
-            if (settings.VideoAspectRatio != VideoAspectRatio.Default)
+            if (conversionOptions.VideoAspectRatio != VideoAspectRatio.Default)
             {
-                string ratio = settings.VideoAspectRatio.ToString();
+                string ratio = conversionOptions.VideoAspectRatio.ToString();
                 ratio = ratio.Substring(1);
                 ratio = ratio.Replace("_", ":");
 
                 commandBuilder.AppendFormat(" -aspect {0} ", ratio);
             }
 
-            return commandBuilder.AppendFormat(" {0}", oFile.Filename).ToString();
+            return commandBuilder.AppendFormat(" \"{0}\" ", outputFile.Filename).ToString();
         }
     }
 }
