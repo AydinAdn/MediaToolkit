@@ -29,10 +29,22 @@ Install our package from NuGets Package Manager Console using the following comm
 Samples
 -------
 
+- [Retrieve metadata](#retrieve-metadata)  
 - [Perform basic video conversions](#basic-conversion)  
 - [Convert from FLV to DVD](#convert-flash-video-to-dvd)  
 - [Convert FLV to MP4 using various transcoding options](#transcoding-options-flv-to-mp4)  
 - [Receive conversion progress notifications](#subscribe-to-progress-changed-event)
+
+### Retrieve metadata
+
+    var inputFile = new MediaFile {Filename = @"C:\Path\To_Video.flv"};
+
+    using (var engine = new Engine())
+    {
+        engine.GetMetaData(inputFile);
+    }
+    
+    Console.WriteLine(inputFile.Metadata.Duration);
 
 ### Basic conversion
 
