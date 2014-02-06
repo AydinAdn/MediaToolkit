@@ -11,6 +11,8 @@ MediaToolkit is a .NET library which can convert and process both audio and vide
 Functionalities
 -------------
 - Convert video files into various other video formats.
+- Create thumbnails from videos.
+- Retrieve full media metadata.
 - Perform video transcoding tasks.
     - Options configurable: `Bit rate`, `Frame rate`, `Resolution / size`, `Aspect ratio`, `Duration of video`
 - Perform audio transcoding tasks.
