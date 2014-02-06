@@ -70,6 +70,18 @@ namespace MediaToolkit
 
         public static event EventHandler<ConvertProgressEventArgs> ConvertProgressEvent;
 
+        public void GetThumbnail(MediaFile inputFile, MediaFile outputFile, ConversionOptions options)
+        {
+            var engineParams = new EngineParams
+            {
+                InputFile = inputFile,
+                OutputFile = outputFile,
+                ConversionOptions = options,
+                Task = FFmpegTask.GetThumbnail
+            };
+
+            FFmpegEngine(engineParams);
+        }
 
         public void GetMetaData(MediaFile inputFile)
         {
@@ -140,6 +152,11 @@ namespace MediaToolkit
 
                     case FFmpegTask.GetMetaData:
                         conversionArgs = CommandBuilder.GetMetaData(engineParams.InputFile);
+                        break;
+
+                    case FFmpegTask.GetThumbnail:
+                        conversionArgs = CommandBuilder.GetThumbnail(engineParams.InputFile, engineParams.OutputFile,
+                            engineParams.ConversionOptions);
                         break;
                 }
 
@@ -279,7 +296,8 @@ namespace MediaToolkit
         internal enum FFmpegTask
         {
             Convert,
-            GetMetaData
+            GetMetaData,
+            GetThumbnail
         }
     }
 }

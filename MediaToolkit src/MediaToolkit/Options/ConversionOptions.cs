@@ -15,6 +15,11 @@ namespace MediaToolkit.Options
         public TimeSpan? MaxVideoDuration = null;
 
         /// <summary>
+        ///     The frame to begin seeking from.
+        /// </summary>
+        public TimeSpan? Seek = null;
+
+        /// <summary>
         ///     Predefined audio and video options for various file formats,
         ///     <para>Can be used in conjunction with <see cref="TargetStandard" /> option</para>
         /// </summary>
@@ -34,6 +39,11 @@ namespace MediaToolkit.Options
         ///     Video bit rate in kbit/s
         /// </summary>
         public int? VideoBitRate = null;
+
+        /// <summary>
+        ///     Video frame rate
+        /// </summary>
+        public int? VideoFps = null;
 
         /// <summary>
         ///     Video sizes

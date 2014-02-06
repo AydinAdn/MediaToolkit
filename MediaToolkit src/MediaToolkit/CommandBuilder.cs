@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using MediaToolkit.Model;
 using MediaToolkit.Options;
@@ -11,6 +12,20 @@ namespace MediaToolkit
         internal static string GetMetaData(MediaFile inputFile)
         {
             return string.Format("-i \"{0}\" ", inputFile.Filename);
+        }
+
+        internal static string GetThumbnail(MediaFile inputFile, MediaFile outputFile, ConversionOptions conversionOptions)
+        {
+            var commandBuilder = new StringBuilder();
+            
+            commandBuilder.AppendFormat(" -ss {0} ",
+                conversionOptions.Seek.GetValueOrDefault(TimeSpan.FromSeconds(1)).TotalSeconds);
+            
+            commandBuilder.AppendFormat("-i \"{0}\" ", inputFile.Filename);
+            commandBuilder.AppendFormat(" -t {0} ", 1);
+            commandBuilder.AppendFormat(" -vframes {0} ", 1);
+
+            return commandBuilder.AppendFormat(" \"{0}\" ", outputFile.Filename).ToString();
         }
 
         internal static string Convert(MediaFile inputFile, MediaFile outputFile, ConversionOptions conversionOptions)

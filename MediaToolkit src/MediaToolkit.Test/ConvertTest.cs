@@ -52,6 +52,28 @@ namespace MediaToolkit.Test
         private string _outputFilePath = "";
         private bool _raiseEvents;
 
+
+        [TestCase]
+        public void Can_GetThumbnail()
+        {
+            string outputPath = string.Format("{0}/{1}.jpg",
+                                              Path.GetDirectoryName(_outputFilePath),
+                                              Path.GetFileNameWithoutExtension(_outputFilePath));
+
+            var inputFile = new MediaFile { Filename = _inputFilePath };
+            var outputFile = new MediaFile { Filename = outputPath };
+
+
+            using (var engine = new Engine())
+            {   
+                engine.GetMetaData(inputFile);
+                var options = new ConversionOptions { Seek = TimeSpan.FromSeconds(inputFile.Metadata.Duration.TotalSeconds / 2) };
+                engine.GetThumbnail(inputFile, outputFile, options);
+            }
+        }
+
+
+
         [TestCase]
         public void Can_GetMetadata()
         {
