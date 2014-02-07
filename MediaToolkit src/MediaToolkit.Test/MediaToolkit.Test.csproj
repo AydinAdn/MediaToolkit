@@ -58,7 +58,6 @@
       <Name>MediaToolkit</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Content Include="TestVideo\BigBunny.m4v" />
   </ItemGroup>

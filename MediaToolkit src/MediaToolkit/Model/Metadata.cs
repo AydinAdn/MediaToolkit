@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MediaToolkit.Model
 {
@@ -19,8 +15,8 @@ namespace MediaToolkit.Model
             public string Format { get; internal set; }
             public string ColorModel { get; internal set; }
             public string FrameSize { get; internal set; }
-            public int BitRateKbs { get; internal set; }
-            public int Fps { get; internal set; }
+            public int? BitRateKbs { get; internal set; }
+            public double Fps { get; internal set; }
         }
 
         public class Audio 

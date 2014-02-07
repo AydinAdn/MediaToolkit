@@ -14,34 +14,48 @@ namespace MediaToolkit
 {
     public sealed class Engine : IDisposable
     {
-        private const string FfmpegDirectory = "/MediaToolkit/";
-        internal static readonly object Lock = new object();
-        internal Process FFmpegProcess;
-
-        private string _ffMpegFilePath;
+        /// <summary>
+        ///     Used for locking the FFmpeg process to one thread.
+        /// </summary>
+        private static readonly object Lock = new object();
+        private static readonly string FFmpegFilePath = Path.GetTempPath() + "/MediaToolkit/ffmpeg.exe";
+        private Process _ffmpegProcess;
 
         public void Dispose()
         {
-            FFmpegProcess = null;
-            _ffMpegFilePath = null;
+            _ffmpegProcess = null;
         }
 
-        /// <summary>
-        ///     Initializes ffmpeg tool by ensuring that
-        ///     <para>there is a copy in the temp folder</para>
-        ///     <para>and is not being used by another process.</para>
-        /// </summary>
-        private void Init()
+        public event EventHandler<ConversionCompleteEventArgs> ConversionCompleteEvent;
+        public event EventHandler<ConvertProgressEventArgs> ConvertProgressEvent;
+
+        private void OnProgressChanged(ConvertProgressEventArgs e)
         {
-            string mediaToolkitFolder = Path.GetTempPath() + FfmpegDirectory;
+            EventHandler<ConvertProgressEventArgs> handler = ConvertProgressEvent;
+            if (handler != null) handler(this, e);
+        }
 
-            if (!Directory.Exists(mediaToolkitFolder)) Directory.CreateDirectory(mediaToolkitFolder);
+        private void OnConversionComplete(ConversionCompleteEventArgs e)
+        {
+            EventHandler<ConversionCompleteEventArgs> handler = ConversionCompleteEvent;
+            if (handler != null) handler(this, e);
+        }
 
-            _ffMpegFilePath = mediaToolkitFolder + "ffmpeg.exe";
 
-            if (File.Exists(_ffMpegFilePath))
+        /// <summary>
+        ///     <para> --- </para>
+        ///     <para> Initializes FFmpeg.exe; Ensuring that there is a copy</para>
+        ///     <para> in the clients temp folder & isn't in use by another process.</para>
+        /// </summary>
+        public Engine()
+        {
+            string ffmpegDirectory = "" + Path.GetDirectoryName(FFmpegFilePath);
+
+            if (!Directory.Exists(ffmpegDirectory)) Directory.CreateDirectory(ffmpegDirectory);
+
+            if (File.Exists(FFmpegFilePath))
             {
-                if (!Document.IsFileLocked(new FileInfo(_ffMpegFilePath))) return;
+                if (!Document.IsFileLocked(new FileInfo(FFmpegFilePath))) return;
 
                 Process[] ffmpegProcesses = Process.GetProcessesByName("ffmpeg");
                 if (ffmpegProcesses.Length > 0)
@@ -60,7 +74,7 @@ namespace MediaToolkit
 
                 if (ffmpegStream == null) throw new Exception("FFMpeg GZip stream is null");
 
-                using (var tempFileStream = new FileStream(_ffMpegFilePath, FileMode.Create))
+                using (var tempFileStream = new FileStream(FFmpegFilePath, FileMode.Create))
                 using (var gZipStream = new GZipStream(ffmpegStream, CompressionMode.Decompress))
                 {
                     gZipStream.CopyTo(tempFileStream);
@@ -68,11 +82,15 @@ namespace MediaToolkit
             }
         }
 
-        public static event EventHandler<ConvertProgressEventArgs> ConvertProgressEvent;
-
+        /// <summary>
+        ///     Retrieve a thumbnail image from a video file.
+        /// </summary>
+        /// <param name="inputFile">Video file</param>
+        /// <param name="outputFile">Image file</param>
+        /// <param name="options">Conversion options</param>
         public void GetThumbnail(MediaFile inputFile, MediaFile outputFile, ConversionOptions options)
         {
-            var engineParams = new EngineParams
+            var engineParams = new EngineParameters
             {
                 InputFile = inputFile,
                 OutputFile = outputFile,
@@ -83,9 +101,14 @@ namespace MediaToolkit
             FFmpegEngine(engineParams);
         }
 
-        public void GetMetaData(MediaFile inputFile)
+        /// <summary>
+        ///     <para> ---</para>
+        ///     <para> Retrieve media metadata</para>
+        /// </summary>
+        /// <param name="inputFile">Retrieves the metadata for the input file</param>
+        public void GetMetadata(MediaFile inputFile)
         {
-            var engineParams = new EngineParams
+            var engineParams = new EngineParameters
             {
                 InputFile = inputFile,
                 Task = FFmpegTask.GetMetaData
@@ -95,14 +118,15 @@ namespace MediaToolkit
         }
 
         /// <summary>
-        ///     Converts media with conversion options
+        ///     <para> ---</para>
+        ///     <para> Converts media with conversion options</para>
         /// </summary>
         /// <param name="inputFile">Input file</param>
         /// <param name="outputFile">Output file</param>
         /// <param name="options">Conversion options</param>
         public void Convert(MediaFile inputFile, MediaFile outputFile, ConversionOptions options)
         {
-            var engineParams = new EngineParams
+            var engineParams = new EngineParameters
             {
                 InputFile = inputFile,
                 OutputFile = outputFile,
@@ -114,13 +138,12 @@ namespace MediaToolkit
         }
 
         /// <summary>
-        ///     Converts media
+        ///     <para> ---</para>
+        ///     <para> Converts media with default options</para>
         /// </summary>
-        /// <param name="inputFile">Input file</param>
-        /// <param name="outputFile">Output file</param>
         public void Convert(MediaFile inputFile, MediaFile outputFile)
         {
-            var engineParams = new EngineParams
+            var engineParams = new EngineParameters
             {
                 InputFile = inputFile,
                 OutputFile = outputFile,
@@ -130,151 +153,84 @@ namespace MediaToolkit
             FFmpegEngine(engineParams);
         }
 
-
-        private void FFmpegEngine(EngineParams engineParams)
+        /// <summary>
+        ///     Where the magic happens
+        /// </summary>
+        /// <param name="engineParameters">The engine parameters</param>
+        private void FFmpegEngine(EngineParameters engineParameters)
         {
-            if (!File.Exists(engineParams.InputFile.Filename)) 
-                throw new FileNotFoundException("Input file not found", engineParams.InputFile.Filename);
+            if (!File.Exists(engineParameters.InputFile.Filename))
+                throw new FileNotFoundException("Input file not found", engineParameters.InputFile.Filename);
 
+            // Locking the process to ensure FFmpeg is used by one thread at a time.
             lock (Lock)
             {
-                Init();
+                //Initialize();
 
-                string conversionArgs = string.Empty;
-
-                switch (engineParams.Task)
-                {
-                    case FFmpegTask.Convert:
-                        conversionArgs = CommandBuilder.Convert(engineParams.InputFile,
-                            engineParams.OutputFile,
-                            engineParams.ConversionOptions);
-                        break;
-
-                    case FFmpegTask.GetMetaData:
-                        conversionArgs = CommandBuilder.GetMetaData(engineParams.InputFile);
-                        break;
-
-                    case FFmpegTask.GetThumbnail:
-                        conversionArgs = CommandBuilder.GetThumbnail(engineParams.InputFile, engineParams.OutputFile,
-                            engineParams.ConversionOptions);
-                        break;
-                }
-
+                var receivedMessagesLog = new List<string>();
                 var totalMediaDuration = new TimeSpan();
 
-                ProcessStartInfo processStartInfo = GenerateProcessStartInfo(conversionArgs);
-
-                var receivedMessages = new List<string>();
-
-                using (FFmpegProcess = Process.Start(processStartInfo))
+                ProcessStartInfo processStartInfo = GenerateStartInfo(engineParameters);
+                using (_ffmpegProcess = Process.Start(processStartInfo))
                 {
-                    if (FFmpegProcess == null) throw new InvalidOperationException("FFmpeg process is not running.");
+                    if (_ffmpegProcess == null) throw new InvalidOperationException("FFmpeg process is not running.");
 
-                    FFmpegProcess.ErrorDataReceived += delegate(object o, DataReceivedEventArgs e)
+                    _ffmpegProcess.ErrorDataReceived += delegate(object sender, DataReceivedEventArgs received)
                     {
-                        if (e.Data == null) return;
+                        if (received.Data == null) return;
 
 #if (DebugToConsole)
-                        Console.WriteLine(e.Data);
+                        Console.WriteLine(received.Data);
 #endif
+                        receivedMessagesLog.Insert(0, received.Data);
 
-                        // Logging received messages; if error occurs last message  explains why.
-                        receivedMessages.Insert(0, e.Data);
+                        RegexEngine.TestVideo(received.Data, engineParameters);
+                        RegexEngine.TestAudio(received.Data, engineParameters);
 
-                        Dictionary<Find, Regex> regexIndex = RegexLibrary.Index;
-                        Match matchDuration = regexIndex[Find.Duration].Match(e.Data);
-                        Match matchFrame = regexIndex[Find.ConvertProgressFrame].Match(e.Data);
-                        Match matchFps = regexIndex[Find.ConvertProgressFps].Match(e.Data);
-                        Match matchSize = regexIndex[Find.ConvertProgressSize].Match(e.Data);
-                        Match matchTime = regexIndex[Find.ConvertProgressTime].Match(e.Data);
-                        Match matchBitrate = regexIndex[Find.ConvertProgressBitrate].Match(e.Data);
-                        
-                        Match matchMetaVideo = regexIndex[Find.MetaVideo].Match(e.Data);
-                        if (matchMetaVideo.Success)
-                        {
-                            string fullMetadata = matchMetaVideo.Groups[1].ToString();
-
-                            GroupCollection matchVideoFormatColorSize = regexIndex[Find.VideoFormatColorSize].Match(fullMetadata).Groups;
-                            GroupCollection matchVideoFps             = regexIndex[Find.VideoFps].Match(fullMetadata).Groups;
-                            GroupCollection matchVideoBitRate         = regexIndex[Find.BitRate].Match(fullMetadata).Groups;
-
-                            if (engineParams.InputFile.Metadata == null)
-                                engineParams.InputFile.Metadata = new Metadata();
-
-                            if (engineParams.InputFile.Metadata.VideoData == null)
-                                engineParams.InputFile.Metadata.VideoData = new Metadata.Video
-                                {
-                                    Format = matchVideoFormatColorSize[1].ToString(),
-                                    ColorModel = matchVideoFormatColorSize[2].ToString(),
-                                    FrameSize = matchVideoFormatColorSize[3].ToString(),
-                                    Fps = System.Convert.ToInt32(matchVideoFps[1].ToString()),
-                                    BitRateKbs = System.Convert.ToInt32(matchVideoBitRate[1].ToString())
-                                };
-                        }
-
-                        Match matchMetaAudio = regexIndex[Find.MetaAudio].Match(e.Data);
-                        if (matchMetaAudio.Success)
-                        {
-                            string fullMetadata = matchMetaAudio.Groups[1].ToString();
-                            GroupCollection matchAudioFormatHzChannel = regexIndex[Find.AudioFormatHzChannel].Match(fullMetadata).Groups;
-                            GroupCollection matchAudioBitRate = regexIndex[Find.BitRate].Match(fullMetadata).Groups;
-
-                            if (engineParams.InputFile.Metadata == null)
-                                engineParams.InputFile.Metadata = new Metadata();
-
-                            if (engineParams.InputFile.Metadata.AudioData == null)
-                                engineParams.InputFile.Metadata.AudioData = new Metadata.Audio
-                                {
-                                    Format = matchAudioFormatHzChannel[1].ToString(),
-                                    SampleRate = matchAudioFormatHzChannel[2].ToString(),
-                                    ChannelOutput = matchAudioFormatHzChannel[3].ToString(),
-                                    BitRateKbs = System.Convert.ToInt32(matchAudioBitRate[1].ToString())
-                                };
-                        }
-
-                        // Log the length of the loaded media
+                        Match matchDuration = RegexEngine.Index[RegexEngine.Find.Duration].Match(received.Data);
                         if (matchDuration.Success)
                         {
-                            if (engineParams.InputFile.Metadata == null)
-                                engineParams.InputFile.Metadata = new Metadata();
-                            
+                            if (engineParameters.InputFile.Metadata == null)
+                                engineParameters.InputFile.Metadata = new Metadata();
+
                             TimeSpan.TryParse(matchDuration.Groups[1].Value, out totalMediaDuration);
-                            engineParams.InputFile.Metadata.Duration = totalMediaDuration;
+                            engineParameters.InputFile.Metadata.Duration = totalMediaDuration;
                         }
 
-                        if (!matchFrame.Success || !matchFps.Success || !matchSize.Success || !matchTime.Success ||
-                            !matchBitrate.Success) return;
+                        ConversionCompleteEventArgs convertCompleteEvent;
+                        ConvertProgressEventArgs progressEvent;
 
-                        // If each Regex is successful, raise the ConvertProgressChangedEvent.
-                        TimeSpan processedDuration;
-                        TimeSpan.TryParse(matchTime.Groups[1].Value, out processedDuration);
-
-                        long frame = System.Convert.ToInt64(matchFrame.Groups[1].Value);
-                        double fps = System.Convert.ToDouble(matchFps.Groups[1].Value);
-                        int sizeKb = System.Convert.ToInt32(matchSize.Groups[1].Value);
-                        double bitrate = System.Convert.ToDouble(matchBitrate.Groups[1].Value);
-                        TimeSpan totalDuration = totalMediaDuration;
-
-                        ConvertProgressEvent(this,
-                            new ConvertProgressEventArgs(processedDuration, totalDuration, frame, fps, sizeKb,
-                                bitrate));
+                        if (RegexEngine.IsProgressData(received.Data, out progressEvent))
+                        {
+                            progressEvent.TotalDuration = totalMediaDuration;
+                            OnProgressChanged(progressEvent);
+                        }
+                        else if (RegexEngine.IsConvertCompleteData(received.Data, out convertCompleteEvent))
+                        {
+                            convertCompleteEvent.TotalDuration = totalMediaDuration;
+                            OnConversionComplete(convertCompleteEvent);
+                        }
                     };
 
-                    FFmpegProcess.BeginErrorReadLine();
-                    FFmpegProcess.WaitForExit();
+                    _ffmpegProcess.BeginErrorReadLine();
+                    _ffmpegProcess.WaitForExit();
 
-                    if (FFmpegProcess.ExitCode != 0 && FFmpegProcess.ExitCode != 1)
-                        throw new Exception(receivedMessages[1] + receivedMessages[0]);
+                    if (_ffmpegProcess.ExitCode != 0 && _ffmpegProcess.ExitCode != 1)
+                        throw new Exception(_ffmpegProcess.ExitCode + ": " + receivedMessagesLog[1] +
+                                            receivedMessagesLog[0]);
                 }
             }
         }
 
-        private ProcessStartInfo GenerateProcessStartInfo(string arguments)
+
+        private ProcessStartInfo GenerateStartInfo(EngineParameters engineParameters)
         {
+            string ffmpegCommand = CommandBuilder.Serialize(engineParameters);
+
             return new ProcessStartInfo
             {
-                Arguments = "-nostdin -y -loglevel info " + arguments,
-                FileName = _ffMpegFilePath,
+                Arguments = "-nostdin -y -loglevel info " + ffmpegCommand,
+                FileName = FFmpegFilePath,
                 CreateNoWindow = true,
                 RedirectStandardInput = false,
                 RedirectStandardOutput = true,
@@ -285,11 +241,14 @@ namespace MediaToolkit
             };
         }
 
-        internal class EngineParams
+        /// <summary>
+        ///     Configures the engine to perform the correct task
+        /// </summary>
+        internal class EngineParameters
         {
             internal MediaFile InputFile { get; set; }
             internal MediaFile OutputFile { get; set; }
-            public ConversionOptions ConversionOptions { get; set; }
+            internal ConversionOptions ConversionOptions { get; set; }
             internal FFmpegTask Task { get; set; }
         }
 

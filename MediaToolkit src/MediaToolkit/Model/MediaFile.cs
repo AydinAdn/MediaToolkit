@@ -11,7 +11,7 @@
         
         public string Filename { get; set; }
 
-        public Metadata Metadata { get; set; }
+        public Metadata Metadata { get; internal set; }
         
     }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Text;
 using MediaToolkit.Model;
 using MediaToolkit.Options;
@@ -9,33 +8,54 @@ namespace MediaToolkit
 {
     internal class CommandBuilder
     {
-        internal static string GetMetaData(MediaFile inputFile)
+        internal static string Serialize(Engine.EngineParameters engineParameters)
+        {
+            switch (engineParameters.Task)
+            {
+                case Engine.FFmpegTask.Convert:
+                    return Convert(engineParameters.InputFile, engineParameters.OutputFile, engineParameters.ConversionOptions);
+
+                case Engine.FFmpegTask.GetMetaData:
+                    return GetMetadata(engineParameters.InputFile);
+
+                case Engine.FFmpegTask.GetThumbnail:
+                    return GetThumbnail(engineParameters.InputFile, engineParameters.OutputFile, engineParameters.ConversionOptions);
+            }
+            return null;
+        }
+
+        private static string GetMetadata(MediaFile inputFile)
         {
             return string.Format("-i \"{0}\" ", inputFile.Filename);
         }
 
-        internal static string GetThumbnail(MediaFile inputFile, MediaFile outputFile, ConversionOptions conversionOptions)
+        private static string GetThumbnail(MediaFile inputFile, MediaFile outputFile, ConversionOptions conversionOptions)
         {
             var commandBuilder = new StringBuilder();
             
             commandBuilder.AppendFormat(" -ss {0} ",
                 conversionOptions.Seek.GetValueOrDefault(TimeSpan.FromSeconds(1)).TotalSeconds);
             
-            commandBuilder.AppendFormat("-i \"{0}\" ", inputFile.Filename);
+            commandBuilder.AppendFormat(" -i \"{0}\" ", inputFile.Filename);
             commandBuilder.AppendFormat(" -t {0} ", 1);
             commandBuilder.AppendFormat(" -vframes {0} ", 1);
 
             return commandBuilder.AppendFormat(" \"{0}\" ", outputFile.Filename).ToString();
         }
 
-        internal static string Convert(MediaFile inputFile, MediaFile outputFile, ConversionOptions conversionOptions)
+        private static string Convert(MediaFile inputFile, MediaFile outputFile, ConversionOptions conversionOptions)
         {
             var commandBuilder = new StringBuilder();
-            commandBuilder.AppendFormat("-i \"{0}\" ", inputFile.Filename);
 
-            // A basic convert.
+            // Default conversion
             if (conversionOptions == null)
-                return commandBuilder.AppendFormat(" \"{0}\" ", outputFile.Filename).ToString();
+                return commandBuilder.AppendFormat(" -i \"{0}\"  \"{1}\" ",inputFile.Filename, outputFile.Filename).ToString();
+
+            // Media seek position
+            if (conversionOptions.Seek != null)
+                commandBuilder.AppendFormat(" -ss {0} ", conversionOptions.Seek.Value.TotalSeconds);
+
+            commandBuilder.AppendFormat(" -i \"{0}\" ", inputFile.Filename);
 
             // Physical media conversion (DVD etc)
             if (conversionOptions.Target != Target.Default)
