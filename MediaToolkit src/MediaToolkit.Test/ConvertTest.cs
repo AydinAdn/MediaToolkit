@@ -11,8 +11,10 @@ namespace MediaToolkit.Test
     [TestFixture]
     public class ConvertTest
     {
-        // TODO: Create assertions for conversion etc
-
+        // TODO: Compare media length after conversion
+        // TODO: Create test cases for Regex 
+        // TODO: Create test cases for the Command builder
+        // TODO: Test audio conversions
         [TestFixtureSetUp]
         public void Init()
         {
