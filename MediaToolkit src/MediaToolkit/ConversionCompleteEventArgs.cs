@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 
 namespace MediaToolkit
 {
-    public class ConvertProgressEventArgs : EventArgs
+    public class ConversionCompleteEventArgs : EventArgs
     {
         /// <summary>
-        /// Raises notifications on the conversion process
+        /// Raises notification once conversion is complete
         /// </summary>
         /// <param name="processed">Duration of the media which has been processed</param>
         /// <param name="totalDuration">The total duration of the original media</param>
@@ -13,7 +13,7 @@ namespace MediaToolkit
         /// <param name="fps">The frames converted per second</param>
         /// <param name="sizeKb">The current size in Kb of the converted media</param>
         /// <param name="bitrate">The bit rate of the converted media</param>
-        public ConvertProgressEventArgs(TimeSpan processed, TimeSpan totalDuration, long frame, double fps, int sizeKb,
+        public ConversionCompleteEventArgs(TimeSpan processed, TimeSpan totalDuration, long frame, double fps, int sizeKb,
             double? bitrate)
         {
             TotalDuration = totalDuration;
