@@ -38,9 +38,45 @@ Samples
 
 - [Retrieve metadata](#retrieve-metadata)  
 - [Perform basic video conversions](#basic-conversion)  
+- [Grab thumbnail] (#grab-thumbnail-from-a-video)
 - [Convert from FLV to DVD](#convert-flash-video-to-dvd)  
 - [Convert FLV to MP4 using various transcoding options](#transcoding-options-flv-to-mp4)  
-- [Receive conversion progress notifications](#subscribe-to-progress-changed-event)
+- [Cut / split video] (#cut-video-down-to-smaller-length)
+- [Subscribing to events](#subscribe-to-events)
+
+### Cut video down to smaller length
+
+    var inputFile = new MediaFile {Filename = @"C:\Path\To_Video.flv"};
+    var outputFile = new MediaFile {Filename = @"C:\Path\To_Save_ExtractedVideo.flv"};
+
+    using (var engine = new Engine())
+    {
+        engine.GetMetadata(inputFile);
+
+        var options = new ConversionOptions();
+        
+        // This example will create a 25 second video, starting from the 
+        // 30th second of the original video.
+        //// First parameter requests the starting frame to cut the media from.
+        //// Second parameter requests how long to cut the video.
+        options.CutMedia(TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(25));
+
+        engine.Convert(inputFile, outputFile, options);
+    }
+
+### Grab thumbnail from a video
+
+    var inputFile = new MediaFile {Filename = @"C:\Path\To_Video.flv"};
+    var outputFile = new MediaFile {Filename = @"C:\Path\To_Save_Image.jpg"};
+
+    using (var engine = new Engine())
+    {
+        engine.GetMetadata(inputFile);
+        
+        // Saves the frame located on the 15th second of the video.
+        var options = new ConversionOptions { Seek = TimeSpan.FromSeconds(15) };
+        engine.GetThumbnail(inputFile, outputFile, options);
+    }
 
 ### Retrieve metadata
 
@@ -66,7 +102,7 @@ Samples
 ### Convert Flash video to DVD
 
     var inputFile = new MediaFile {Filename = @"C:\Path\To_Video.flv"};
-    var outputFile = new MediaFile {Filename = @"C:\Path\To_Save_New_DVD.mpg"};
+    var outputFile = new MediaFile {Filename = @"C:\Path\To_Save_New_DVD.vob"};
 
     var conversionOptions = new ConversionOptions
     {
@@ -97,24 +133,35 @@ Samples
         engine.Convert(inputFile, outputFile, conversionOptions);
     }
 
-### Subscribe to progress changed event
+### Subscribe to events
 
     public void StartConverting()
     {
         var inputFile = new MediaFile {Filename = @"C:\Path\To_Video.flv"};
         var outputFile = new MediaFile {Filename = @"C:\Path\To_Save_New_Video.mp4"};
-
-        // Subscribe to event
-        Engine.ConvertProgressEvent += EngineConvertProgressEvent;
+        
         using (var engine = new Engine())
         {
+            engine.ConvertProgressEvent += ConvertProgressEvent;
+            engine.ConversionCompleteEvent += engine_ConversionCompleteEvent;
             engine.Convert(inputFile, outputFile);
         }
-
     }
 
-    private void EngineConvertProgressEvent(object sender, ConvertProgressEventArgs e)
+    private void ConvertProgressEvent(object sender, ConvertProgressEventArgs e)
     {
+        Console.WriteLine("\n------------\nConverting...\n------------");
+        Console.WriteLine("Bitrate: {0}", e.Bitrate);
+        Console.WriteLine("Fps: {0}", e.Fps);
+        Console.WriteLine("Frame: {0}", e.Frame);
+        Console.WriteLine("ProcessedDuration: {0}", e.ProcessedDuration);
+        Console.WriteLine("SizeKb: {0}", e.SizeKb);
+        Console.WriteLine("TotalDuration: {0}\n", e.TotalDuration);
+    }
+    
+    private void engine_ConversionCompleteEvent(object sender, ConversionCompleteEventArgs e)
+    {
+        Console.WriteLine("\n------------\nConversion complete!\n------------");
         Console.WriteLine("Bitrate: {0}", e.Bitrate);
         Console.WriteLine("Fps: {0}", e.Fps);
         Console.WriteLine("Frame: {0}", e.Frame);
