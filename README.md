@@ -3,8 +3,6 @@ MediaToolkit
 
 MediaToolkit is a .NET library which can convert and process both audio and video files.
 
-This library is being updated almost daily , I will provide the full documentation by 13/Feb/2014. If you find any bugs or have any questions please let me know.
-
 Contents
 ---------
 
