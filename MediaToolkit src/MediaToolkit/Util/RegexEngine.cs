@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MediaToolkit.Model;
+using System.Globalization;
 
 namespace MediaToolkit.Util
 {
@@ -30,7 +31,7 @@ namespace MediaToolkit.Util
                 Find.VideoFormatColorSize,
                 new Regex(@"Video:\s*([^,]*),\s*([^,]*,?[^,]*?),?\s*(?=[0-9]*x[0-9]*)([0-9]*x[0-9]*)")
             },
-            {Find.VideoFps, new Regex(@"([0-9]*)\s*tbr")}
+            {Find.VideoFps, new Regex(@"([0-9\.]*)\s*tbr")}
         };
 
         /// <summary>
@@ -124,7 +125,7 @@ namespace MediaToolkit.Util
                     Format = matchVideoFormatColorSize[1].ToString(),
                     ColorModel = matchVideoFormatColorSize[2].ToString(),
                     FrameSize = matchVideoFormatColorSize[3].ToString(),
-                    Fps = Convert.ToInt32(matchVideoFps[1].ToString()),
+                    Fps = Convert.ToDouble(matchVideoFps[1].ToString(), new CultureInfo("en-US")),
                     BitRateKbs =
                         matchVideoBitRate.Success
                             ? (int?) Convert.ToInt32(matchVideoBitRate.Groups[1].ToString())
