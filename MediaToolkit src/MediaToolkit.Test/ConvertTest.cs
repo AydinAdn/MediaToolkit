@@ -1,10 +1,10 @@
-﻿using System;
+﻿using MediaToolkit.Model;
+using MediaToolkit.Options;
+using NUnit.Framework;
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using MediaToolkit.Model;
-using MediaToolkit.Options;
-using NUnit.Framework;
 
 namespace MediaToolkit.Test
 {
@@ -59,8 +59,8 @@ namespace MediaToolkit.Test
         {
             string outputPath = string.Format(@"{0}\Cut_Video_Test.mp4", Path.GetDirectoryName(_outputFilePath));
 
-            var inputFile = new MediaFile {Filename = _inputFilePath};
-            var outputFile = new MediaFile {Filename = outputPath};
+            var inputFile = new MediaFile { Filename = _inputFilePath };
+            var outputFile = new MediaFile { Filename = outputPath };
 
             using (var engine = new Engine())
             {
@@ -81,8 +81,8 @@ namespace MediaToolkit.Test
         {
             string outputPath = string.Format(@"{0}\Get_Thumbnail_Test.jpg", Path.GetDirectoryName(_outputFilePath));
 
-            var inputFile = new MediaFile {Filename = _inputFilePath};
-            var outputFile = new MediaFile {Filename = outputPath};
+            var inputFile = new MediaFile { Filename = _inputFilePath };
+            var outputFile = new MediaFile { Filename = outputPath };
 
             using (var engine = new Engine())
             {
@@ -93,7 +93,7 @@ namespace MediaToolkit.Test
 
                 var options = new ConversionOptions
                 {
-                    Seek = TimeSpan.FromSeconds(inputFile.Metadata.Duration.TotalSeconds/2)
+                    Seek = TimeSpan.FromSeconds(inputFile.Metadata.Duration.TotalSeconds / 2)
                 };
                 engine.GetThumbnail(inputFile, outputFile, options);
             }
@@ -102,7 +102,7 @@ namespace MediaToolkit.Test
         [TestCase]
         public void Can_GetMetadata()
         {
-            var inputFile = new MediaFile {Filename = _inputFilePath};
+            var inputFile = new MediaFile { Filename = _inputFilePath };
 
             using (var engine = new Engine())
                 engine.GetMetadata(inputFile);
@@ -183,10 +183,10 @@ namespace MediaToolkit.Test
         {
             string outputPath = string.Format("{0}/Convert_DVD_Test.vob", Path.GetDirectoryName(_outputFilePath));
 
-            var inputFile = new MediaFile {Filename = _inputFilePath};
-            var outputFile = new MediaFile {Filename = outputPath};
+            var inputFile = new MediaFile { Filename = _inputFilePath };
+            var outputFile = new MediaFile { Filename = outputPath };
 
-            var conversionOptions = new ConversionOptions {Target = Target.DVD, TargetStandard = TargetStandard.PAL};
+            var conversionOptions = new ConversionOptions { Target = Target.DVD, TargetStandard = TargetStandard.PAL };
 
             using (var engine = new Engine())
             {
@@ -208,8 +208,8 @@ namespace MediaToolkit.Test
         {
             string outputPath = string.Format("{0}/Transcode_Test.avi", Path.GetDirectoryName(_outputFilePath));
 
-            var inputFile = new MediaFile {Filename = _inputFilePath};
-            var outputFile = new MediaFile {Filename = outputPath};
+            var inputFile = new MediaFile { Filename = _inputFilePath };
+            var outputFile = new MediaFile { Filename = outputPath };
             var conversionOptions = new ConversionOptions
             {
                 MaxVideoDuration = TimeSpan.FromSeconds(30),
@@ -221,6 +221,30 @@ namespace MediaToolkit.Test
 
             using (var engine = new Engine())
                 engine.Convert(inputFile, outputFile, conversionOptions);
+        }
+
+        [TestCase]
+        public void Can_ScaleDownPreservingAspectRatio()
+        {
+            string outputPath = string.Format(@"{0}\Convert_Basic_Test.mp4", Path.GetDirectoryName(_outputFilePath));
+
+            var inputFile = new MediaFile { Filename = _inputFilePath };
+            var outputFile = new MediaFile { Filename = outputPath };
+
+            using (var engine = new Engine())
+            {
+                engine.ConvertProgressEvent += engine_ConvertProgressEvent;
+                engine.ConversionCompleteEvent += engine_ConversionCompleteEvent;
+
+                engine.Convert(inputFile, outputFile, new ConversionOptions { VideoSize = VideoSize.Custom, CustomHeight = 120 });
+                engine.GetMetadata(inputFile);
+                engine.GetMetadata(outputFile);
+            }
+
+            Assert.AreEqual("214x120", outputFile.Metadata.VideoData.FrameSize);
+
+            PrintMetadata(inputFile.Metadata);
+            PrintMetadata(outputFile.Metadata);
         }
 
         private void engine_ConvertProgressEvent(object sender, ConvertProgressEventArgs e)
@@ -269,7 +293,7 @@ namespace MediaToolkit.Test
                 Console.WriteLine("AudioData.ChannelOutput: {0}", meta.AudioData.ChannelOutput ?? "");
                 Console.WriteLine("AudioData.BitRate:       {0}\n", (int?)meta.AudioData.BitRateKbs);
             }
-            
+
         }
     }
 }

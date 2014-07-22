@@ -65,6 +65,16 @@ namespace MediaToolkit.Options
         ///     Video sizes
         /// </summary>
         public VideoSize VideoSize = VideoSize.Default;
+
+        /// <summary>
+        ///     Custom Width when VideoSize.Custom is set
+        /// </summary>
+        public int? CustomWidth { get; set; }
+
+        /// <summary>
+        ///     Custom Height when VideoSize.Custom is set
+        /// </summary>
+        public int? CustomHeight { get; set; }
     }
 
 }
