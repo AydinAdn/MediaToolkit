@@ -75,6 +75,11 @@ namespace MediaToolkit.Options
         ///     Custom Height when VideoSize.Custom is set
         /// </summary>
         public int? CustomHeight { get; set; }
+
+        /// <summary>
+        ///     Specifies wheter or not to use H.264 Baseline Profile
+        /// </summary>
+        public bool BaselineProfile { get; set; }
     }
 
 }

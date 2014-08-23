@@ -109,6 +109,11 @@ namespace MediaToolkit
                 commandBuilder.AppendFormat(" -aspect {0} ", ratio);
             }
 
+            if (conversionOptions.BaselineProfile)
+            {
+                commandBuilder.Append(" -profile:v baseline ");
+            }
+
             return commandBuilder.AppendFormat(" \"{0}\" ", outputFile.Filename).ToString();
         }
     }
