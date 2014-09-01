@@ -1,4 +1,7 @@
-﻿using System;
+﻿using MediaToolkit.Model;
+using MediaToolkit.Options;
+using MediaToolkit.Util;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,9 +9,6 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
-using MediaToolkit.Model;
-using MediaToolkit.Options;
-using MediaToolkit.Util;
 
 namespace MediaToolkit
 {
@@ -17,9 +17,10 @@ namespace MediaToolkit
         /// <summary>
         ///     Used for locking the FFmpeg process to one thread.
         /// </summary>
-        private static readonly object Lock = new object();
+        private static readonly string LockName = "MediaToolkit.Engine.LockName";
         private static readonly string FFmpegFilePath = Path.GetTempPath() + "/MediaToolkit/ffmpeg.exe";
         private Process _ffmpegProcess;
+        private Mutex mutex;
 
         public void Dispose()
         {
@@ -49,6 +50,8 @@ namespace MediaToolkit
         /// </summary>
         public Engine()
         {
+            mutex = new Mutex(false, LockName);
+
             string ffmpegDirectory = "" + Path.GetDirectoryName(FFmpegFilePath);
 
             if (!Directory.Exists(ffmpegDirectory)) Directory.CreateDirectory(ffmpegDirectory);
@@ -57,28 +60,19 @@ namespace MediaToolkit
             {
                 if (!Document.IsFileLocked(new FileInfo(FFmpegFilePath))) return;
 
-                Process[] ffmpegProcesses = Process.GetProcessesByName("ffmpeg");
-                if (ffmpegProcesses.Length > 0)
-                    foreach (Process process in ffmpegProcesses)
-                    {
-                        // pew pew pew...
-                        process.Kill();
-                        // let it die...
-                        Thread.Sleep(200);
-                    }
+                try
+                {
+                    mutex.WaitOne();
+                    KillFFmpegProcesses();
+                }
+                finally
+                {
+                    mutex.ReleaseMutex();
+                }
             }
             else
             {
-                Stream ffmpegStream = Assembly.GetExecutingAssembly()
-                    .GetManifestResourceStream("MediaToolkit.Resources.FFmpeg.exe.gz");
-
-                if (ffmpegStream == null) throw new Exception("FFMpeg GZip stream is null");
-
-                using (var tempFileStream = new FileStream(FFmpegFilePath, FileMode.Create))
-                using (var gZipStream = new GZipStream(ffmpegStream, CompressionMode.Decompress))
-                {
-                    gZipStream.CopyTo(tempFileStream);
-                }
+                UnpackFFmpegExecutable();
             }
         }
 
@@ -153,6 +147,33 @@ namespace MediaToolkit
             FFmpegEngine(engineParams);
         }
 
+        private static void KillFFmpegProcesses()
+        {
+            Process[] ffmpegProcesses = Process.GetProcessesByName("ffmpeg");
+            if (ffmpegProcesses.Length > 0)
+                foreach (Process process in ffmpegProcesses)
+                {
+                    // pew pew pew...
+                    process.Kill();
+                    // let it die...
+                    Thread.Sleep(200);
+                }
+        }
+
+        private static void UnpackFFmpegExecutable()
+        {
+            Stream ffmpegStream = Assembly.GetExecutingAssembly()
+                .GetManifestResourceStream("MediaToolkit.Resources.FFmpeg.exe.gz");
+
+            if (ffmpegStream == null) throw new Exception("FFMpeg GZip stream is null");
+
+            using (var tempFileStream = new FileStream(FFmpegFilePath, FileMode.Create))
+            using (var gZipStream = new GZipStream(ffmpegStream, CompressionMode.Decompress))
+            {
+                gZipStream.CopyTo(tempFileStream);
+            }
+        }
+
         /// <summary>
         ///     Where the magic happens
         /// </summary>
@@ -162,63 +183,71 @@ namespace MediaToolkit
             if (!File.Exists(engineParameters.InputFile.Filename))
                 throw new FileNotFoundException("Input file not found", engineParameters.InputFile.Filename);
 
-            // Locking the process to ensure FFmpeg is used by one thread at a time.
-            lock (Lock)
+            try
             {
-                //Initialize();
+                mutex.WaitOne();
+                StartFFmpegProcess(engineParameters);
+            }
+            finally
+            {
+                mutex.ReleaseMutex();
+            }
+        }
 
-                var receivedMessagesLog = new List<string>();
-                var totalMediaDuration = new TimeSpan();
+        private void StartFFmpegProcess(EngineParameters engineParameters)
+        {
+            var receivedMessagesLog = new List<string>();
+            var totalMediaDuration = new TimeSpan();
 
-                ProcessStartInfo processStartInfo = GenerateStartInfo(engineParameters);
-                using (_ffmpegProcess = Process.Start(processStartInfo))
+            ProcessStartInfo processStartInfo = GenerateStartInfo(engineParameters);
+
+            using (_ffmpegProcess = Process.Start(processStartInfo))
+            {
+                if (_ffmpegProcess == null) throw new InvalidOperationException("FFmpeg process is not running.");
+
+                _ffmpegProcess.ErrorDataReceived += delegate(object sender, DataReceivedEventArgs received)
                 {
-                    if (_ffmpegProcess == null) throw new InvalidOperationException("FFmpeg process is not running.");
-
-                    _ffmpegProcess.ErrorDataReceived += delegate(object sender, DataReceivedEventArgs received)
-                    {
-                        if (received.Data == null) return;
+                    if (received.Data == null) return;
 
 #if (DebugToConsole)
                         Console.WriteLine(received.Data);
 #endif
-                        receivedMessagesLog.Insert(0, received.Data);
+                    receivedMessagesLog.Insert(0, received.Data);
 
-                        RegexEngine.TestVideo(received.Data, engineParameters);
-                        RegexEngine.TestAudio(received.Data, engineParameters);
+                    RegexEngine.TestVideo(received.Data, engineParameters);
+                    RegexEngine.TestAudio(received.Data, engineParameters);
 
-                        Match matchDuration = RegexEngine.Index[RegexEngine.Find.Duration].Match(received.Data);
-                        if (matchDuration.Success)
-                        {
-                            if (engineParameters.InputFile.Metadata == null)
-                                engineParameters.InputFile.Metadata = new Metadata();
+                    Match matchDuration = RegexEngine.Index[RegexEngine.Find.Duration].Match(received.Data);
+                    if (matchDuration.Success)
+                    {
+                        if (engineParameters.InputFile.Metadata == null)
+                            engineParameters.InputFile.Metadata = new Metadata();
 
-                            TimeSpan.TryParse(matchDuration.Groups[1].Value, out totalMediaDuration);
-                            engineParameters.InputFile.Metadata.Duration = totalMediaDuration;
-                        }
+                        TimeSpan.TryParse(matchDuration.Groups[1].Value, out totalMediaDuration);
+                        engineParameters.InputFile.Metadata.Duration = totalMediaDuration;
+                    }
 
-                        ConversionCompleteEventArgs convertCompleteEvent;
-                        ConvertProgressEventArgs progressEvent;
+                    ConversionCompleteEventArgs convertCompleteEvent;
+                    ConvertProgressEventArgs progressEvent;
 
-                        if (RegexEngine.IsProgressData(received.Data, out progressEvent))
-                        {
-                            progressEvent.TotalDuration = totalMediaDuration;
-                            OnProgressChanged(progressEvent);
-                        }
-                        else if (RegexEngine.IsConvertCompleteData(received.Data, out convertCompleteEvent))
-                        {
-                            convertCompleteEvent.TotalDuration = totalMediaDuration;
-                            OnConversionComplete(convertCompleteEvent);
-                        }
-                    };
+                    if (RegexEngine.IsProgressData(received.Data, out progressEvent))
+                    {
+                        progressEvent.TotalDuration = totalMediaDuration;
+                        OnProgressChanged(progressEvent);
+                    }
+                    else if (RegexEngine.IsConvertCompleteData(received.Data, out convertCompleteEvent))
+                    {
+                        convertCompleteEvent.TotalDuration = totalMediaDuration;
+                        OnConversionComplete(convertCompleteEvent);
+                    }
+                };
 
-                    _ffmpegProcess.BeginErrorReadLine();
-                    _ffmpegProcess.WaitForExit();
+                _ffmpegProcess.BeginErrorReadLine();
+                _ffmpegProcess.WaitForExit();
 
-                    if (_ffmpegProcess.ExitCode != 0 && _ffmpegProcess.ExitCode != 1)
-                        throw new Exception(_ffmpegProcess.ExitCode + ": " + receivedMessagesLog[1] +
-                                            receivedMessagesLog[0]);
-                }
+                if (_ffmpegProcess.ExitCode != 0 && _ffmpegProcess.ExitCode != 1)
+                    throw new Exception(_ffmpegProcess.ExitCode + ": " + receivedMessagesLog[1] +
+                                        receivedMessagesLog[0]);
             }
         }
 
