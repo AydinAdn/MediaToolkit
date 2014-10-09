@@ -1,8 +1,8 @@
-﻿using System;
-using System.Text;
-using MediaToolkit.Model;
+﻿using MediaToolkit.Model;
 using MediaToolkit.Options;
 using MediaToolkit.Util;
+using System;
+using System.Text;
 
 namespace MediaToolkit
 {
@@ -32,10 +32,10 @@ namespace MediaToolkit
         private static string GetThumbnail(MediaFile inputFile, MediaFile outputFile, ConversionOptions conversionOptions)
         {
             var commandBuilder = new StringBuilder();
-            
+
             commandBuilder.AppendFormat(" -ss {0} ",
                 conversionOptions.Seek.GetValueOrDefault(TimeSpan.FromSeconds(1)).TotalSeconds);
-            
+
             commandBuilder.AppendFormat(" -i \"{0}\" ", inputFile.Filename);
             commandBuilder.AppendFormat(" -t {0} ", 1);
             commandBuilder.AppendFormat(" -vframes {0} ", 1);
@@ -49,7 +49,7 @@ namespace MediaToolkit
 
             // Default conversion
             if (conversionOptions == null)
-                return commandBuilder.AppendFormat(" -i \"{0}\"  \"{1}\" ",inputFile.Filename, outputFile.Filename).ToString();
+                return commandBuilder.AppendFormat(" -i \"{0}\"  \"{1}\" ", inputFile.Filename, outputFile.Filename).ToString();
 
             // Media seek position
             if (conversionOptions.Seek != null)
@@ -86,7 +86,11 @@ namespace MediaToolkit
                 commandBuilder.AppendFormat(" -b {0}k ", conversionOptions.VideoBitRate);
 
             // Video size / resolution
-            if (conversionOptions.VideoSize != VideoSize.Default)
+            if (conversionOptions.VideoSize == VideoSize.Custom)
+            {
+                commandBuilder.AppendFormat(" -vf \"scale={0}:{1}\" ", conversionOptions.CustomWidth ?? -2, conversionOptions.CustomHeight ?? -2);
+            }
+            else if (conversionOptions.VideoSize != VideoSize.Default)
             {
                 string size = conversionOptions.VideoSize.ToLower();
                 if (size.StartsWith("_")) size = size.Replace("_", "");
@@ -103,6 +107,11 @@ namespace MediaToolkit
                 ratio = ratio.Replace("_", ":");
 
                 commandBuilder.AppendFormat(" -aspect {0} ", ratio);
+            }
+
+            if (conversionOptions.BaselineProfile)
+            {
+                commandBuilder.Append(" -profile:v baseline ");
             }
 
             return commandBuilder.AppendFormat(" \"{0}\" ", outputFile.Filename).ToString();
