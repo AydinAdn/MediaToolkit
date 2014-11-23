@@ -265,7 +265,7 @@ namespace MediaToolkit
                 _ffmpegProcess.BeginErrorReadLine();
                 _ffmpegProcess.WaitForExit();
 
-                if (_ffmpegProcess.ExitCode != 0 && _ffmpegProcess.ExitCode != 1)
+                if ((_ffmpegProcess.ExitCode != 0 && _ffmpegProcess.ExitCode != 1) || caughtException != null)
                     throw new Exception(_ffmpegProcess.ExitCode + ": " + receivedMessagesLog[1] +
                                         receivedMessagesLog[0], caughtException);
             }
