@@ -125,7 +125,7 @@ namespace MediaToolkit.Util
                     Format = matchVideoFormatColorSize[1].ToString(),
                     ColorModel = matchVideoFormatColorSize[2].ToString(),
                     FrameSize = matchVideoFormatColorSize[3].ToString(),
-                    Fps = Convert.ToDouble(matchVideoFps[1].ToString(), new CultureInfo("en-US")),
+                    Fps = matchVideoFps[1].Success && !string.IsNullOrEmpty(matchVideoFps[1].ToString()) ? Convert.ToDouble(matchVideoFps[1].ToString(), new CultureInfo("en-US")) : 0,
                     BitRateKbs =
                         matchVideoBitRate.Success
                             ? (int?) Convert.ToInt32(matchVideoBitRate.Groups[1].ToString())
