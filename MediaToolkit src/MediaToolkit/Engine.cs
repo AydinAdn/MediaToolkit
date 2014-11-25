@@ -17,7 +17,7 @@ namespace MediaToolkit
         /// <summary>
         ///     Used for locking the FFmpeg process to one thread.
         /// </summary>
-        private static readonly string LockName = "MediaToolkit.Engine.LockName2";
+        private static readonly string LockName = "MediaToolkit.Engine.LockName";
         private static readonly string FFmpegFilePath = Path.GetTempPath() + "/MediaToolkit/ffmpeg.exe";
         private Process _ffmpegProcess;
         private Mutex mutex;
