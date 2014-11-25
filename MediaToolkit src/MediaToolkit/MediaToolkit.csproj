@@ -58,6 +58,7 @@
     <Compile Include="Engine.cs" />
     <Compile Include="Model\Metadata.cs" />
     <Compile Include="Options\ConversionOptions.cs" />
+    <Compile Include="Options\CropRectangle.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Model\MediaFile.cs" />
     <Compile Include="Options\ConversionEnums.cs" />

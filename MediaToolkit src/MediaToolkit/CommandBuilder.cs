@@ -109,6 +109,13 @@ namespace MediaToolkit
                 commandBuilder.AppendFormat(" -aspect {0} ", ratio);
             }
 
+            // Video cropping
+            if (conversionOptions.SourceCrop != null)
+            {
+                var crop = conversionOptions.SourceCrop;
+                commandBuilder.AppendFormat(" -filter:v \"crop={0}:{1}:{2}:{3}\" ", crop.Width, crop.Height, crop.X, crop.Y);
+            }
+
             if (conversionOptions.BaselineProfile)
             {
                 commandBuilder.Append(" -profile:v baseline ");

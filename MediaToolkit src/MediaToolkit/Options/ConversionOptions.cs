@@ -77,6 +77,11 @@ namespace MediaToolkit.Options
         public int? CustomHeight { get; set; }
 
         /// <summary>
+        ///     Specifies an optional rectangle from the source video to crop
+        /// </summary>
+        public CropRectangle SourceCrop { get; set; }
+
+        /// <summary>
         ///     Specifies wheter or not to use H.264 Baseline Profile
         /// </summary>
         public bool BaselineProfile { get; set; }

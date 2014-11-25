@@ -77,6 +77,34 @@ namespace MediaToolkit.Test
         }
 
         [TestCase]
+        public void Can_CropVideo()
+        {
+            string outputPath = string.Format(@"{0}\Crop_Video_Test.mp4", Path.GetDirectoryName(_outputFilePath));
+
+            var inputFile = new MediaFile { Filename = _inputFilePath };
+            var outputFile = new MediaFile { Filename = outputPath };
+
+            using (var engine = new Engine())
+            {
+                engine.ConvertProgressEvent += engine_ConvertProgressEvent;
+                engine.ConversionCompleteEvent += engine_ConversionCompleteEvent;
+
+                engine.GetMetadata(inputFile);
+
+                var options = new ConversionOptions();
+                options.SourceCrop = new CropRectangle()
+                {
+                    X = 100,
+                    Y = 100,
+                    Width = 50,
+                    Height = 50
+                };
+
+                engine.Convert(inputFile, outputFile, options);
+            }
+        }
+
+        [TestCase]
         public void Can_GetThumbnail()
         {
             string outputPath = string.Format(@"{0}\Get_Thumbnail_Test.jpg", Path.GetDirectoryName(_outputFilePath));
