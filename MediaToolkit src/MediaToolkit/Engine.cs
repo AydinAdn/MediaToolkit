@@ -203,6 +203,7 @@ namespace MediaToolkit
 
             using (_ffmpegProcess = Process.Start(processStartInfo))
             {
+                Exception caughtException = null;
                 if (_ffmpegProcess == null) throw new InvalidOperationException("FFmpeg process is not running.");
 
                 _ffmpegProcess.ErrorDataReceived += delegate(object sender, DataReceivedEventArgs received)
@@ -212,42 +213,61 @@ namespace MediaToolkit
 #if (DebugToConsole)
                         Console.WriteLine(received.Data);
 #endif
-                    receivedMessagesLog.Insert(0, received.Data);
-
-                    RegexEngine.TestVideo(received.Data, engineParameters);
-                    RegexEngine.TestAudio(received.Data, engineParameters);
-
-                    Match matchDuration = RegexEngine.Index[RegexEngine.Find.Duration].Match(received.Data);
-                    if (matchDuration.Success)
+                    try
                     {
-                        if (engineParameters.InputFile.Metadata == null)
-                            engineParameters.InputFile.Metadata = new Metadata();
 
-                        TimeSpan.TryParse(matchDuration.Groups[1].Value, out totalMediaDuration);
-                        engineParameters.InputFile.Metadata.Duration = totalMediaDuration;
+                        receivedMessagesLog.Insert(0, received.Data);
+
+                        RegexEngine.TestVideo(received.Data, engineParameters);
+                        RegexEngine.TestAudio(received.Data, engineParameters);
+
+                        Match matchDuration = RegexEngine.Index[RegexEngine.Find.Duration].Match(received.Data);
+                        if (matchDuration.Success)
+                        {
+                            if (engineParameters.InputFile.Metadata == null)
+                                engineParameters.InputFile.Metadata = new Metadata();
+
+                            TimeSpan.TryParse(matchDuration.Groups[1].Value, out totalMediaDuration);
+                            engineParameters.InputFile.Metadata.Duration = totalMediaDuration;
+                        }
+
+                        ConversionCompleteEventArgs convertCompleteEvent;
+                        ConvertProgressEventArgs progressEvent;
+
+                        if (RegexEngine.IsProgressData(received.Data, out progressEvent))
+                        {
+                            progressEvent.TotalDuration = totalMediaDuration;
+                            OnProgressChanged(progressEvent);
+                        }
+                        else if (RegexEngine.IsConvertCompleteData(received.Data, out convertCompleteEvent))
+                        {
+                            convertCompleteEvent.TotalDuration = totalMediaDuration;
+                            OnConversionComplete(convertCompleteEvent);
+                        }
                     }
-
-                    ConversionCompleteEventArgs convertCompleteEvent;
-                    ConvertProgressEventArgs progressEvent;
-
-                    if (RegexEngine.IsProgressData(received.Data, out progressEvent))
+                    catch (Exception ex)
                     {
-                        progressEvent.TotalDuration = totalMediaDuration;
-                        OnProgressChanged(progressEvent);
-                    }
-                    else if (RegexEngine.IsConvertCompleteData(received.Data, out convertCompleteEvent))
-                    {
-                        convertCompleteEvent.TotalDuration = totalMediaDuration;
-                        OnConversionComplete(convertCompleteEvent);
+                        // catch the exception and kill the process since we're in a faulted state
+                        caughtException = ex;
+
+                        try
+                        {
+                            _ffmpegProcess.Kill();
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            // swallow exceptions that are thrown when killing the process, 
+                            //one possible candidate is the application ending naturally before we get a chance to kill it
+                        }
                     }
                 };
 
                 _ffmpegProcess.BeginErrorReadLine();
                 _ffmpegProcess.WaitForExit();
 
-                if (_ffmpegProcess.ExitCode != 0 && _ffmpegProcess.ExitCode != 1)
+                if ((_ffmpegProcess.ExitCode != 0 && _ffmpegProcess.ExitCode != 1) || caughtException != null)
                     throw new Exception(_ffmpegProcess.ExitCode + ": " + receivedMessagesLog[1] +
-                                        receivedMessagesLog[0]);
+                                        receivedMessagesLog[0], caughtException);
             }
         }
 
