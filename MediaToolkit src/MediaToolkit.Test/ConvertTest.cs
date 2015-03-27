@@ -47,10 +47,12 @@ namespace MediaToolkit.Test
                 "Test file not found: " + testDirectoryPath + @"BigBunny.m4v");
 
             _inputFilePath = testDirectoryPath + @"BigBunny.m4v";
+            _inputUrlPath = @"http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4";
             _outputFilePath = testDirectoryPath + @"OuputBunny.mp4";
         }
 
         private string _inputFilePath = "";
+        private string _inputUrlPath = "";
         private string _outputFilePath = "";
         private bool _printToConsoleEnabled;
 
@@ -110,6 +112,29 @@ namespace MediaToolkit.Test
             string outputPath = string.Format(@"{0}\Get_Thumbnail_Test.jpg", Path.GetDirectoryName(_outputFilePath));
 
             var inputFile = new MediaFile { Filename = _inputFilePath };
+            var outputFile = new MediaFile { Filename = outputPath };
+
+            using (var engine = new Engine())
+            {
+                engine.ConvertProgressEvent += engine_ConvertProgressEvent;
+                engine.ConversionCompleteEvent += engine_ConversionCompleteEvent;
+
+                engine.GetMetadata(inputFile);
+
+                var options = new ConversionOptions
+                {
+                    Seek = TimeSpan.FromSeconds(inputFile.Metadata.Duration.TotalSeconds / 2)
+                };
+                engine.GetThumbnail(inputFile, outputFile, options);
+            }
+        }
+
+        [TestCase]
+        public void Can_GetThumbnailFromHTTPLink()
+        {
+            string outputPath = string.Format(@"{0}\Get_Thumbnail_FromHTTP_Test.jpg", Path.GetDirectoryName(_outputFilePath));
+
+            var inputFile = new MediaFile { Filename = _inputUrlPath };
             var outputFile = new MediaFile { Filename = outputPath };
 
             using (var engine = new Engine())

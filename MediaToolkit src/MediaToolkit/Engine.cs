@@ -180,7 +180,8 @@ namespace MediaToolkit
         /// <param name="engineParameters">The engine parameters</param>
         private void FFmpegEngine(EngineParameters engineParameters)
         {
-            if (!File.Exists(engineParameters.InputFile.Filename))
+            if (!engineParameters.InputFile.Filename.StartsWith("http://") 
+                && !File.Exists(engineParameters.InputFile.Filename))
                 throw new FileNotFoundException("Input file not found", engineParameters.InputFile.Filename);
 
             try
