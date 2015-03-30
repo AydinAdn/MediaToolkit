@@ -12,6 +12,7 @@
 
     using MediaToolkit.Model;
     using MediaToolkit.Options;
+    using MediaToolkit.Properties;
     using MediaToolkit.Util;
 
     ///-------------------------------------------------------------------------------------------------
