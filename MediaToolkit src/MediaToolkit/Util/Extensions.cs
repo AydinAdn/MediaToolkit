@@ -13,5 +13,10 @@ namespace MediaToolkit.Util
         {
             return enumerable.ToString().Replace(text, "");
         }
+
+        internal static bool IsNullOrWhiteSpace(this string text)
+        {
+            return string.IsNullOrWhiteSpace(text);
+        }
     }
 }
