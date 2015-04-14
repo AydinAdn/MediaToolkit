@@ -40,7 +40,7 @@ namespace MediaToolkit.Util
 
             try
             {
-                fileStream = file.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+                fileStream = file.Open(FileMode.Open, FileAccess.Read, FileShare.Read);
             }
             catch (IOException)
             {
