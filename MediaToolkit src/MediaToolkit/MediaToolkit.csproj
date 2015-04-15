@@ -18,7 +18,7 @@
     <UpdateAssemblyFileVersion>True</UpdateAssemblyFileVersion>
     <UpdateAssemblyInfoVersion>True</UpdateAssemblyInfoVersion>
     <AssemblyVersionSettings>None.None.IncrementOnDemand.IncrementOnDemandWithReset</AssemblyVersionSettings>
-    <AssemblyVersion>1.0.3.3</AssemblyVersion>
+    <AssemblyVersion>1.0.4.4</AssemblyVersion>
     <AssemblyFileVersionSettings>None.None.IncrementOnDemand.IncrementOnDemandWithReset</AssemblyFileVersionSettings>
     <AssemblyInfoVersionSettings>None.None.IncrementOnDemand.IncrementOnDemandWithReset</AssemblyInfoVersionSettings>
   </PropertyGroup>
@@ -63,6 +63,9 @@
     <Compile Include="ConvertProgressEventArgs.cs" />
     <Compile Include="ConversionCompleteEventArgs.cs" />
     <Compile Include="Engine.cs" />
+    <Compile Include="EngineBase.cs" />
+    <Compile Include="EngineParameters.cs" />
+    <Compile Include="FFmpegTask.cs" />
     <Compile Include="Model\Metadata.cs" />
     <Compile Include="Options\ConversionOptions.cs" />
     <Compile Include="Options\CropRectangle.cs" />
@@ -82,6 +85,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\FFmpeg.exe.gz" />
   </ItemGroup>

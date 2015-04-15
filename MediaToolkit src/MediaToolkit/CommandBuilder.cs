@@ -8,17 +8,17 @@ namespace MediaToolkit
 {
     internal class CommandBuilder
     {
-        internal static string Serialize(Engine.EngineParameters engineParameters)
+        internal static string Serialize(EngineParameters engineParameters)
         {
             switch (engineParameters.Task)
             {
-                case Engine.FFmpegTask.Convert:
+                case FFmpegTask.Convert:
                     return Convert(engineParameters.InputFile, engineParameters.OutputFile, engineParameters.ConversionOptions);
 
-                case Engine.FFmpegTask.GetMetaData:
+                case FFmpegTask.GetMetaData:
                     return GetMetadata(engineParameters.InputFile);
 
-                case Engine.FFmpegTask.GetThumbnail:
+                case FFmpegTask.GetThumbnail:
                     return GetThumbnail(engineParameters.InputFile, engineParameters.OutputFile, engineParameters.ConversionOptions);
             }
             return null;

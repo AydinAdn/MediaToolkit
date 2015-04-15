@@ -104,7 +104,7 @@ namespace MediaToolkit.Util
             return true;
         }
 
-        internal static void TestVideo(string data, Engine.EngineParameters engine)
+        internal static void TestVideo(string data, EngineParameters engine)
         {
             Match matchMetaVideo = Index[Find.MetaVideo].Match(data);
 
@@ -133,7 +133,7 @@ namespace MediaToolkit.Util
                 };
         }
 
-        internal static void TestAudio(string data, Engine.EngineParameters engine)
+        internal static void TestAudio(string data, EngineParameters engine)
         {
             Match matchMetaAudio = Index[Find.MetaAudio].Match(data);
 

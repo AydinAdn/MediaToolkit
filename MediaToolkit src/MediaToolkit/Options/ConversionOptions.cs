@@ -5,19 +5,28 @@ namespace MediaToolkit.Options
     public class ConversionOptions
     {
         /// <summary>
-        /// <para> --- </para>
-        /// <para> Cut audio / video from existing media</para>
-        /// <para> Example: To extract a 15 minute piece out of a 30 minute video called TEST.mp4</para> 
-        /// <para> starting from the 5th minute:</para>
-        /// <para> The start position would be: TimeSpan.FromMinutes(5)</para>
-        /// <para> The length would be: TimeSpan.FromMinutes(15)</para>
+        ///     <para> --- </para>
+        ///     <para> Cut audio / video from existing media                </para>
+        ///     <para> Example: To cut a 15 minute section                  </para> 
+        ///     <para> out of a 30 minute video starting                    </para>
+        ///     <para> from the 5th minute:                                 </para>
+        ///     <para> The start position would be: TimeSpan.FromMinutes(5) </para>
+        ///     <para> The length would be:         TimeSpan.FromMinutes(15)</para>
         /// </summary>
-        /// <param name="startPosition">Specify the TimeSpan to start cutting from </param>
-        /// <param name="length">Specify the length of the video to cut</param>
-        public void CutMedia(TimeSpan startPosition, TimeSpan length)
+        /// <param name="seekToPosition">
+        ///     <para>Specify the position to seek to,                  </para>
+        ///     <para>if you wish to begin the cut starting             </para>
+        ///     <para>from the 5th minute, use: TimeSpan.FromMinutes(5);</para>
+        /// </param>
+        /// <param name="length">
+        ///     <para>Specify the length of the video to cut,           </para>
+        ///     <para>to cut out a 15 minute duration                   </para>
+        ///     <para>simply use: TimeSpan.FromMinutes(15);             </para>
+        /// </param>
+        public void CutMedia(TimeSpan seekToPosition, TimeSpan length)
         {
-            Seek = startPosition;
-            MaxVideoDuration = length;
+            this.Seek = seekToPosition;
+            this.MaxVideoDuration = length;
         }
 
         /// <summary>
