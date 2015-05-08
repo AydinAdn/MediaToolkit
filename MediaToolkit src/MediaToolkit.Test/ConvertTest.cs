@@ -110,6 +110,10 @@ namespace MediaToolkit.Test
         public void Can_GetThumbnail()
         {
             string outputPath = string.Format(@"{0}\Get_Thumbnail_Test.jpg", Path.GetDirectoryName(_outputFilePath));
+            if (File.Exists(outputPath))
+            {
+                File.Delete(outputPath);
+            }
 
             var inputFile = new MediaFile { Filename = _inputFilePath };
             var outputFile = new MediaFile { Filename = outputPath };
