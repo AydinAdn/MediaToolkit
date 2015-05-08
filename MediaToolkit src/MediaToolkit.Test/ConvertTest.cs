@@ -127,6 +127,7 @@ namespace MediaToolkit.Test
                 };
                 engine.GetThumbnail(inputFile, outputFile, options);
             }
+            Assert.IsTrue(File.Exists(outputPath));
         }
 
         [TestCase]
