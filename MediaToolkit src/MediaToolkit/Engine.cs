@@ -230,23 +230,25 @@
 #endif
                     try
                     {
+                        
                         receivedMessagesLog.Insert(0, received.Data);
-
-                        RegexEngine.TestVideo(received.Data, engineParameters);
-                        RegexEngine.TestAudio(received.Data, engineParameters);
-
-                        Match matchDuration = RegexEngine.Index[RegexEngine.Find.Duration].Match(received.Data);
-                        if (matchDuration.Success)
+                        if (engineParameters.InputFile != null)
                         {
-                            if (engineParameters.InputFile.Metadata == null)
+                            RegexEngine.TestVideo(received.Data, engineParameters);
+                            RegexEngine.TestAudio(received.Data, engineParameters);
+                        
+                            Match matchDuration = RegexEngine.Index[RegexEngine.Find.Duration].Match(received.Data);
+                            if (matchDuration.Success)
                             {
-                                engineParameters.InputFile.Metadata = new Metadata();
+                                if (engineParameters.InputFile.Metadata == null)
+                                {
+                                    engineParameters.InputFile.Metadata = new Metadata();
+                                }
+
+                                TimeSpan.TryParse(matchDuration.Groups[1].Value, out totalMediaDuration);
+                                engineParameters.InputFile.Metadata.Duration = totalMediaDuration;
                             }
-
-                            TimeSpan.TryParse(matchDuration.Groups[1].Value, out totalMediaDuration);
-                            engineParameters.InputFile.Metadata.Duration = totalMediaDuration;
                         }
-
                         ConversionCompleteEventArgs convertCompleteEvent;
                         ConvertProgressEventArgs progressEvent;
 
