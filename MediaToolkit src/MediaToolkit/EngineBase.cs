@@ -57,10 +57,6 @@
             this.EnsureFFmpegIsNotUsed ();
         }
 
-
-
-
-
         private void EnsureFFmpegIsNotUsed()
         {
             if (!Document.IsLocked(this.FFmpegFilePath)) return;
