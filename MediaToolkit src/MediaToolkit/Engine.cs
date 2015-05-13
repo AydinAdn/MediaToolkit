@@ -16,6 +16,23 @@
     public class Engine : EngineBase
     {
         /// <summary>
+        /// Standard constructor, 
+        /// If an AppSettings "mediaToolkit.ffmpeg.path" is declared, this path will be used for FFMpeg, otherwise this library will extract one from itself.
+        /// </summary>
+        public Engine() : base()
+        {
+        }
+
+        /// <summary>
+        /// Uses FFMpeg from the specified location
+        /// </summary>
+        public Engine(string ffMpegPath)
+            : base()
+        {
+          
+        }
+
+        /// <summary>
         ///     Event queue for all listeners interested in conversionComplete events.
         /// </summary>
         public event EventHandler<ConversionCompleteEventArgs> ConversionCompleteEvent;
