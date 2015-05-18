@@ -110,11 +110,17 @@ namespace MediaToolkit.Test
         public void Can_GetThumbnail()
         {
             string outputPath = string.Format(@"{0}\Get_Thumbnail_Test.jpg", Path.GetDirectoryName(_outputFilePath));
+            if (File.Exists(outputPath))
+            {
+                File.Delete(outputPath);
+            }
 
             var inputFile = new MediaFile { Filename = _inputFilePath };
             var outputFile = new MediaFile { Filename = outputPath };
+            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var localMediaToolkitFfMpeg = Path.Combine(localAppData, "MediaToolkit", "ffmpeg.exe");
 
-            using (var engine = new Engine())
+            using (var engine = new Engine(localMediaToolkitFfMpeg))
             {
                 engine.ConvertProgressEvent += engine_ConvertProgressEvent;
                 engine.ConversionCompleteEvent += engine_ConversionCompleteEvent;
@@ -127,6 +133,7 @@ namespace MediaToolkit.Test
                 };
                 engine.GetThumbnail(inputFile, outputFile, options);
             }
+            Assert.IsTrue(File.Exists(outputPath));
         }
 
         [TestCase]
