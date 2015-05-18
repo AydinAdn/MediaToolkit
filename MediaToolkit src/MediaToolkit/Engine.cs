@@ -20,6 +20,16 @@
         /// </summary>
         public event EventHandler<ConversionCompleteEventArgs> ConversionCompleteEvent;
 
+        public Engine()
+        {
+            
+        }
+
+        public Engine(string ffMpegPath) : base(ffMpegPath)
+        {
+            
+        }
+
         /// -------------------------------------------------------------------------------------------------
         /// <summary>
         ///     <para> ---</para>

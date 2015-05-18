@@ -117,8 +117,10 @@ namespace MediaToolkit.Test
 
             var inputFile = new MediaFile { Filename = _inputFilePath };
             var outputFile = new MediaFile { Filename = outputPath };
+            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var localMediaToolkitFfMpeg = Path.Combine(localAppData, "MediaToolkit", "ffmpeg.exe");
 
-            using (var engine = new Engine())
+            using (var engine = new Engine(localMediaToolkitFfMpeg))
             {
                 engine.ConvertProgressEvent += engine_ConvertProgressEvent;
                 engine.ConversionCompleteEvent += engine_ConversionCompleteEvent;
