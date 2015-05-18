@@ -37,7 +37,6 @@ namespace MediaToolkit
                 conversionOptions.Seek.GetValueOrDefault(TimeSpan.FromSeconds(1)).TotalSeconds);
 
             commandBuilder.AppendFormat(" -i \"{0}\" ", inputFile.Filename);
-            commandBuilder.AppendFormat(" -t {0} ", 1);
             commandBuilder.AppendFormat(" -vframes {0} ", 1);
 
             return commandBuilder.AppendFormat(" \"{0}\" ", outputFile.Filename).ToString();
