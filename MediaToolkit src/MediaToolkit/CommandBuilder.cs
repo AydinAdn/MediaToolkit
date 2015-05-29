@@ -2,6 +2,7 @@
 using MediaToolkit.Options;
 using MediaToolkit.Util;
 using System;
+using System.Globalization;
 using System.Text;
 
 namespace MediaToolkit
@@ -33,7 +34,7 @@ namespace MediaToolkit
         {
             var commandBuilder = new StringBuilder();
 
-            commandBuilder.AppendFormat(" -ss {0} ",
+            commandBuilder.AppendFormat(CultureInfo.InvariantCulture, " -ss {0} ",
                 conversionOptions.Seek.GetValueOrDefault(TimeSpan.FromSeconds(1)).TotalSeconds);
 
             commandBuilder.AppendFormat(" -i \"{0}\" ", inputFile.Filename);
@@ -52,7 +53,7 @@ namespace MediaToolkit
 
             // Media seek position
             if (conversionOptions.Seek != null)
-                commandBuilder.AppendFormat(" -ss {0} ", conversionOptions.Seek.Value.TotalSeconds);
+                commandBuilder.AppendFormat(CultureInfo.InvariantCulture, " -ss {0} ", conversionOptions.Seek.Value.TotalSeconds);
 
             commandBuilder.AppendFormat(" -i \"{0}\" ", inputFile.Filename);
 
