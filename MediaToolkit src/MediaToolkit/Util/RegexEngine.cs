@@ -59,10 +59,10 @@ namespace MediaToolkit.Util
             TimeSpan processedDuration;
             TimeSpan.TryParse(matchTime.Groups[1].Value, out processedDuration);
 
-            long frame = Convert.ToInt64(matchFrame.Groups[1].Value);
-            double fps = Convert.ToDouble(matchFps.Groups[1].Value);
-            int sizeKb = Convert.ToInt32(matchSize.Groups[1].Value);
-            double bitrate = Convert.ToDouble(matchBitrate.Groups[1].Value);
+            long frame = Convert.ToInt64(matchFrame.Groups[1].Value, CultureInfo.InvariantCulture);
+            double fps = Convert.ToDouble(matchFps.Groups[1].Value, CultureInfo.InvariantCulture);
+            int sizeKb = Convert.ToInt32(matchSize.Groups[1].Value, CultureInfo.InvariantCulture);
+            double bitrate = Convert.ToDouble(matchBitrate.Groups[1].Value, CultureInfo.InvariantCulture);
 
             progressEventArgs = new ConvertProgressEventArgs(processedDuration, TimeSpan.Zero, frame, fps, sizeKb, bitrate);
 
@@ -94,10 +94,10 @@ namespace MediaToolkit.Util
             TimeSpan processedDuration;
             TimeSpan.TryParse(matchTime.Groups[1].Value, out processedDuration);
 
-            long frame = Convert.ToInt64(matchFrame.Groups[1].Value);
-            double fps = Convert.ToDouble(matchFps.Groups[1].Value);
-            int sizeKb = Convert.ToInt32(matchFinished.Groups[1].Value);
-            double bitrate = Convert.ToDouble(matchBitrate.Groups[1].Value);
+            long frame = Convert.ToInt64(matchFrame.Groups[1].Value, CultureInfo.InvariantCulture);
+            double fps = Convert.ToDouble(matchFps.Groups[1].Value, CultureInfo.InvariantCulture);
+            int sizeKb = Convert.ToInt32(matchFinished.Groups[1].Value, CultureInfo.InvariantCulture);
+            double bitrate = Convert.ToDouble(matchBitrate.Groups[1].Value, CultureInfo.InvariantCulture);
 
             conversionCompleteEvent = new ConversionCompleteEventArgs(processedDuration, TimeSpan.Zero, frame, fps, sizeKb, bitrate);
 
