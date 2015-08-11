@@ -153,7 +153,7 @@ namespace MediaToolkit.Util
                     Format = matchAudioFormatHzChannel[1].ToString(),
                     SampleRate = matchAudioFormatHzChannel[2].ToString(),
                     ChannelOutput = matchAudioFormatHzChannel[3].ToString(),
-                    BitRateKbs = Convert.ToInt32(matchAudioBitRate[1].ToString())
+                    BitRateKbs = !String.IsNullOrWhiteSpace(matchAudioBitRate[1].ToString()) ? Convert.ToInt32(matchAudioBitRate[1].ToString()) : 0
                 };
         }
 
