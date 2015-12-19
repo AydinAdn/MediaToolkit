@@ -1,31 +1,40 @@
 MediaToolkit
 ============
 
-MediaToolkit is a .NET library which can convert and process both audio and video files.
+MediaToolkit provides a straightforward interface for handling media data, making tasks such as converting, slicing and editing both audio and video completely effortless.
+
+Under the hood, MediaToolkit is a .NET wrapper for FFmpeg; a free (LGPLv2.1) multimedia framework containing multiple audio and video codecs, supporting muxing, demuxing and transcoding tasks on many media formats.
 
 Contents
 ---------
 
-1. [Functionalities](#functionalities)
+1. [Features](#features)
 2. [Get started!](#get-started)
 3. [Samples](#samples)
 4. [Licensing](#licensing)
 
-Functionalities
+Features
 -------------
-- Convert video files into various other video formats.
-- Create thumbnails from videos.
-- Retrieve full media metadata.
-- Perform video transcoding tasks.
-    - Options configurable: `Bit rate`, `Frame rate`, `Resolution / size`, `Aspect ratio`, `Duration of video`
-- Perform audio transcoding tasks.
-    - Options configurable: `Audio sample rate`
-- Convert video to physical formats using FILM, PAL or NTSC tv standards
-    - Mediums include: `DVD`, `DV`, `DV50`, `VCD`, `SVCD`
+- Resolving metadata
+- Generating thumbnails from videos
+- Transcode audio & video into other formats using parameters such as:
+    -  `Bit rate`
+    -  `Frame rate`
+    -  `Resolution`
+    -  `Aspect ratio`
+    -  `Seek position`
+    -  `Duration`
+    -  `Sample rate`
+    -  `Media format`
+- Convert media to physical formats and standards such as:
+    - Standards include: `FILM`, `PAL` & `NTSC`
+    - Mediums include: `DVD`, `DV`, `DV50`, `VCD` & `SVCD`
+- Supports custom FFmpeg command line arguments
+- Raising progress events
 
 Get started!
 ------------
-Install our package from NuGets Package Manager Console using the following command
+Install MediaToolkit from NuGet using the Package Manager Console with the following command (or simply search on [NuGet MediaToolkit](https://www.nuget.org/packages/MediaToolkit))
 
     PM> Install-Package MediaToolkit
     
