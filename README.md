@@ -34,11 +34,9 @@ Features
 
 Get started!
 ------------
-Install MediaToolkit from NuGet using the Package Manager Console with the following command (or simply search on [NuGet](https://www.nuget.org/packages/MediaToolkit))
+Install MediaToolkit from NuGet using the Package Manager Console with the following command (or search on [NuGet MediaToolkit](https://www.nuget.org/packages/MediaToolkit))
 
     PM> Install-Package MediaToolkit
-    
-[NuGet MediaToolkit](https://www.nuget.org/packages/MediaToolkit)
 
 Samples
 -------
