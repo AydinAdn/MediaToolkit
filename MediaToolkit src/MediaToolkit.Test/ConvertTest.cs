@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using MediaToolkit.Util;
 
 namespace MediaToolkit.Test
 {
@@ -59,7 +60,8 @@ namespace MediaToolkit.Test
         [TestCase]
         public void Can_CutVideo()
         {
-            string outputPath = string.Format(@"{0}\Cut_Video_Test.mp4", Path.GetDirectoryName(_outputFilePath));
+            string filePath = @"{0}\Cut_Video_Test.mp4";
+            string outputPath = string.Format(filePath, Path.GetDirectoryName(_outputFilePath));
 
             var inputFile = new MediaFile { Filename = _inputFilePath };
             var outputFile = new MediaFile { Filename = outputPath };
@@ -75,7 +77,14 @@ namespace MediaToolkit.Test
                 options.CutMedia(TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(25));
 
                 engine.Convert(inputFile, outputFile, options);
+                engine.GetMetadata(outputFile);
             }
+            
+            Assert.That(File.Exists(filePath));
+            Assert.That(outputFile.Metadata.Duration == TimeSpan.FromSeconds(3));
+            // Input file is 33 seconds long, seeking to the 30th second and then 
+            // attempting to cut another 25 seconds isn't possible as there's only 3 seconds
+            // of content length, so instead the library cuts the maximumum possible.
         }
 
         [TestCase]
