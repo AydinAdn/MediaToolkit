@@ -148,17 +148,35 @@
 
         private ProcessStartInfo GenerateStartInfo(string arguments)
         {
-            return new ProcessStartInfo
+            //windows case
+            if (Path.DirectorySeparatorChar == '\\')
             {
-                Arguments = "-nostdin -y -loglevel info " + arguments,
-                FileName = this.FFmpegFilePath,
-                CreateNoWindow = true,
-                RedirectStandardInput = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                WindowStyle = ProcessWindowStyle.Hidden
-            };
+                return new ProcessStartInfo
+                {
+                    Arguments = "-nostdin -y -loglevel info " + arguments,
+                    FileName = this.FFmpegFilePath,
+                    CreateNoWindow = true,
+                    RedirectStandardInput = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+            }
+            else //linux case: -nostdin options doesn't exist at least in debian ffmpeg
+            {
+                return new ProcessStartInfo
+                {
+                    Arguments = "-y -loglevel info " + arguments,
+                    FileName = this.FFmpegFilePath,
+                    CreateNoWindow = true,
+                    RedirectStandardInput = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+            }
         }
         
         #endregion
