@@ -151,7 +151,10 @@
                 return;
             }
 
-            this.FFmpegProcess.Dispose();
+            if(FFmpegProcess != null)
+            {
+                this.FFmpegProcess.Dispose();
+            }            
             this.FFmpegProcess = null;
             this.isDisposed = true;
         }
