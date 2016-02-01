@@ -69,7 +69,7 @@ Samples
 
     using (var engine = new Engine())
     {
-        engine.GetMetaData(inputFile);
+        engine.GetMetadata(inputFile);
     }
     
     Console.WriteLine(inputFile.Metadata.Duration);
