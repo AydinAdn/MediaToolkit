@@ -4,8 +4,6 @@
     using System.Configuration;
     using System.Diagnostics;
     using System.IO;
-    using System.IO.Compression;
-    using System.Reflection;
     using System.Threading;
 
     using MediaToolkit.Properties;
@@ -86,7 +84,7 @@
         {
             if (!File.Exists(this.FFmpegFilePath))
             {
-                UnpackFFmpegExecutable(this.FFmpegFilePath);
+                Document.Decompress(Resources.FFmpegManifestResourceName, this.FFmpegFilePath);
             }
         }
 
@@ -110,27 +108,6 @@
                 Thread.Sleep(200);
             }
         }
-
-        ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Unpack ffmpeg executable. </summary>
-        /// <exception cref="Exception">    Thrown when an exception error condition occurs. </exception>
-        private static void UnpackFFmpegExecutable(string path)
-        {
-            Stream compressedFFmpegStream = Assembly.GetExecutingAssembly()
-                                                    .GetManifestResourceStream(Resources.FFmpegManifestResourceName);
-
-            if (compressedFFmpegStream == null)
-            {
-                throw new Exception(Resources.Exceptions_Null_FFmpeg_Gzip_Stream);
-            }
-
-            using (FileStream fileStream = new FileStream(path, FileMode.Create))
-            using (GZipStream compressedStream = new GZipStream(compressedFFmpegStream, CompressionMode.Decompress))
-            {
-                compressedStream.CopyTo(fileStream);
-            }
-        }
-
 
 
         ///-------------------------------------------------------------------------------------------------

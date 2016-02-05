@@ -1,4 +1,7 @@
 ﻿using System.IO;
+using System.IO.Compression;
+using System.Reflection;
+using MediaToolkit.Properties;
 
 namespace MediaToolkit.Util
 {
@@ -55,6 +58,31 @@ namespace MediaToolkit.Util
             return false;
         }
 
+        public static void Decompress(string resource, string toPath)
+        {
+            if (resource.IsNullOrWhiteSpace())
+            {
+                throw new ArgumentNullException("resource");
+            }
 
+            if (toPath.IsNullOrWhiteSpace())
+            {
+                throw new ArgumentNullException("toPath");
+            }
+
+            Stream compressedResourceStream = Assembly.GetExecutingAssembly()
+                                                      .GetManifestResourceStream(resource);
+
+            if (compressedResourceStream == null)
+            {
+                throw new Exception(Resources.Exceptions_Null_CompressedResourceStream);
+            }
+
+            using (FileStream fileStream = new FileStream(toPath, FileMode.Create))
+            using (GZipStream compressedStream = new GZipStream(compressedResourceStream, CompressionMode.Decompress))
+            {
+                compressedStream.CopyTo(fileStream);
+            }
+        }
     }
 }
