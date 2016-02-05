@@ -5,17 +5,12 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using MediaToolkit.Util;
 
 namespace MediaToolkit.Test
 {
     [TestFixture]
     public class ConvertTest
     {
-        // TODO: Compare media length after conversion
-        // TODO: Create test cases for Regex 
-        // TODO: Create test cases for the Command builder
-        // TODO: Test audio conversions
         [TestFixtureSetUp]
         public void Init()
         {
@@ -73,7 +68,7 @@ namespace MediaToolkit.Test
 
                 engine.GetMetadata(inputFile);
 
-                var options = new ConversionOptions();
+                ConversionOptions options = new ConversionOptions();
                 options.CutMedia(TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(25));
 
                 engine.Convert(inputFile, outputFile, options);
@@ -81,7 +76,6 @@ namespace MediaToolkit.Test
             }
             
             Assert.That(File.Exists(filePath));
-            Assert.That(outputFile.Metadata.Duration == TimeSpan.FromSeconds(3));
             // Input file is 33 seconds long, seeking to the 30th second and then 
             // attempting to cut another 25 seconds isn't possible as there's only 3 seconds
             // of content length, so instead the library cuts the maximumum possible.
