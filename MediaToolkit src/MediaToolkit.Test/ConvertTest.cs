@@ -75,7 +75,7 @@ namespace MediaToolkit.Test
                 engine.GetMetadata(outputFile);
             }
             
-            Assert.That(File.Exists(filePath));
+            Assert.That(File.Exists(outputPath));
             // Input file is 33 seconds long, seeking to the 30th second and then 
             // attempting to cut another 25 seconds isn't possible as there's only 3 seconds
             // of content length, so instead the library cuts the maximumum possible.
