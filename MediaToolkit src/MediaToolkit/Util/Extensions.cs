@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 
 namespace System.Runtime.CompilerServices
@@ -7,8 +8,20 @@ namespace System.Runtime.CompilerServices
 }
 namespace MediaToolkit.Util
 {
-    internal static class Extensions
+    public static class Extensions
     {
+        public static string FormatInvariant(this string value, params object[] args)
+        {
+            try
+            {
+                return value == null ? string.Empty : string.Format(CultureInfo.InvariantCulture, value, args);
+            }
+            catch (FormatException ex)
+            {
+                return value;
+            }
+        }
+
         internal static bool IsNullOrWhiteSpace(this string value)
         {
             return String.IsNullOrEmpty(value) || value.Trim().Length == 0;
