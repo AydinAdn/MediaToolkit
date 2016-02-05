@@ -21,8 +21,9 @@ namespace MediaToolkit
 
                 case FFmpegTask.GetThumbnail:
                     return GetThumbnail(engineParameters.InputFile, engineParameters.OutputFile, engineParameters.ConversionOptions);
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-            return null;
         }
 
         private static string GetMetadata(MediaFile inputFile)
@@ -34,8 +35,7 @@ namespace MediaToolkit
         {
             var commandBuilder = new StringBuilder();
 
-            commandBuilder.AppendFormat(CultureInfo.InvariantCulture, " -ss {0} ",
-                conversionOptions.Seek.GetValueOrDefault(TimeSpan.FromSeconds(1)).TotalSeconds);
+            commandBuilder.AppendFormat(CultureInfo.InvariantCulture, " -ss {0} ", conversionOptions.Seek.GetValueOrDefault(TimeSpan.FromSeconds(1)).TotalSeconds);
 
             commandBuilder.AppendFormat(" -i \"{0}\" ", inputFile.Filename);
             commandBuilder.AppendFormat(" -vframes {0} ", 1);
@@ -63,8 +63,7 @@ namespace MediaToolkit
                 commandBuilder.Append(" -target ");
                 if (conversionOptions.TargetStandard != TargetStandard.Default)
                 {
-                    commandBuilder.AppendFormat(" {0}-{1} \"{2}\" ", conversionOptions.TargetStandard.ToLower(),
-                        conversionOptions.Target.ToLower(), outputFile.Filename);
+                    commandBuilder.AppendFormat(" {0}-{1} \"{2}\" ", conversionOptions.TargetStandard.ToLower(), conversionOptions.Target.ToLower(), outputFile.Filename);
 
                     return commandBuilder.ToString();
                 }
