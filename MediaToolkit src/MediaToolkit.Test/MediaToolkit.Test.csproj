@@ -48,6 +48,9 @@
   <ItemGroup>
     <Compile Include="ConvertTest.cs" />
     <Compile Include="Features\ArgumentsFeature.cs" />
+    <Compile Include="Features\GetThumbnailArgument.cs" />
+    <Compile Include="Features\IArgument.cs" />
+    <Compile Include="Features\IMediaProcessor.cs" />
     <Compile Include="Features\MetadataTestsAndFeatures.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\RegexEngineTest.cs" />

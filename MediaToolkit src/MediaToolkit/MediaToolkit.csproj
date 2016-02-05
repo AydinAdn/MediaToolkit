@@ -64,6 +64,9 @@
     <Compile Include="Engine.cs" />
     <Compile Include="EngineBase.cs" />
     <Compile Include="EngineParameters.cs" />
+    <Compile Include="Features\IMetadata.cs" />
+    <Compile Include="Features\IMetadataProvider.cs" />
+    <Compile Include="Features\Metadata.cs" />
     <Compile Include="Features\MetadataProvider.cs" />
     <Compile Include="FFmpegTask.cs" />
     <Compile Include="Model\Metadata.cs" />

@@ -67,18 +67,4 @@ namespace MediaToolkit.Features
             return new Metadata {MetadataIndex = metadataIndex};
         }
     }
-    public interface IMetadataProvider : IDisposable
-    {
-        IMetadata GetMetadata(string filename);
-    }
-
-    public interface IMetadata
-    {
-        Dictionary<string, string> MetadataIndex { get; set; } 
-    }
-
-    public class Metadata : IMetadata
-    {
-        public Dictionary<string, string> MetadataIndex { get; set; }
-    }
 }
