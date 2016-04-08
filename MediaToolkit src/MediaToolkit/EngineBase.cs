@@ -59,12 +59,15 @@
 
         private void EnsureFFmpegIsNotUsed()
         {
-            if (!Document.IsLocked(this.FFmpegFilePath)) return;
-
             try
             {
                 this.Mutex.WaitOne();
-                KillFFmpegProcesses();
+                Process.GetProcessesByName(Resources.FFmpegProcessName)
+                       .ForEach(process =>
+                       {
+                           process.Kill();
+                           process.WaitForExit();
+                       });
             }
             finally
             {
@@ -87,27 +90,6 @@
             if (!File.Exists(this.FFmpegFilePath))
             {
                 UnpackFFmpegExecutable(this.FFmpegFilePath);
-            }
-        }
-
-
-
-        ///-------------------------------------------------------------------------------------------------
-        /// <summary>   Kill FFmpeg processes. </summary>
-        private static void KillFFmpegProcesses()
-        {
-            Process[] ffmpegProcesses = Process.GetProcessesByName(Resources.FFmpegProcessName);
-            if (ffmpegProcesses.Length <= 0)
-            {
-                return;
-            }
-
-            foreach (Process process in ffmpegProcesses)
-            {
-                // pew pew pew...
-                process.Kill();
-                // let it die...
-                Thread.Sleep(200);
             }
         }
 
