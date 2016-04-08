@@ -11,16 +11,33 @@ namespace MediaToolkit.Test.Util
     {
         public class ForEach
         {
+            [SetUp]
+            public void SetUp()
+            {
+                this.CollectionUnderTest = new[] { "Foo", "Bar" };
+            }
+
+            public IEnumerable<string> CollectionUnderTest;
+
             [Test]
             public void Will_Iterate_Through_EachItem_InCollection()
             {
-                IEnumerable<string> collectionUnderTest = new[] { "Foo", "Bar" };
                 int expectedIterations = 2;
                 int iterations = 0;
 
-                collectionUnderTest.ForEach(item => iterations++);
+                this.CollectionUnderTest.ForEach(item => iterations++);
 
                 Assert.That(iterations == expectedIterations);
+            }
+
+            [Test]
+            public void When_ActionIsNull_Throw_ArgumentNullException()
+            {
+                Type expectedException = typeof (ArgumentNullException);
+
+                TestDelegate codeUnderTest = () => this.CollectionUnderTest.ForEach(null);
+
+                Assert.Throws(expectedException, codeUnderTest);
             }
         }
     }
