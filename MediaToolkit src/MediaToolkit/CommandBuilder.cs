@@ -84,6 +84,10 @@ namespace MediaToolkit
             if (conversionOptions.VideoBitRate != null)
                 commandBuilder.AppendFormat(" -b {0}k ", conversionOptions.VideoBitRate);
 
+            // Video frame rate
+            if (conversionOptions.VideoFps != null)
+                commandBuilder.AppendFormat(" -r {0} ", conversionOptions.VideoFps);
+
             // Video size / resolution
             if (conversionOptions.VideoSize == VideoSize.Custom)
             {
