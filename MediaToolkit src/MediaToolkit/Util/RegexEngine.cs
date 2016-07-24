@@ -20,7 +20,7 @@ namespace MediaToolkit.Util
             {Find.Duration, new Regex(@"Duration: ([^,]*), ")},
             {Find.ConvertProgressFrame, new Regex(@"frame=\s*([0-9]*)")},
             {Find.ConvertProgressFps, new Regex(@"fps=\s*([0-9]*\.?[0-9]*?)")},
-            {Find.ConvertProgressSize, new Regex(@" size=\s*([0-9]*)kB")},
+            {Find.ConvertProgressSize, new Regex(@"size=\s*([0-9]*)kB")},
             {Find.ConvertProgressFinished, new Regex(@"Lsize=\s*([0-9]*)kB")},
             {Find.ConvertProgressTime, new Regex(@"time=\s*([^ ]*)")},
             {Find.ConvertProgressBitrate, new Regex(@"bitrate=\s*([0-9]*\.?[0-9]*?)kbits/s")},
@@ -53,21 +53,58 @@ namespace MediaToolkit.Util
             Match matchTime = Index[Find.ConvertProgressTime].Match(data);
             Match matchBitrate = Index[Find.ConvertProgressBitrate].Match(data);
 
-            if (!matchFrame.Success || !matchFps.Success || !matchSize.Success || !matchTime.Success ||
-                !matchBitrate.Success) return false;
+            if (!matchSize.Success || !matchTime.Success || !matchBitrate.Success)
+                return false;
 
             TimeSpan processedDuration;
             TimeSpan.TryParse(matchTime.Groups[1].Value, out processedDuration);
 
-            long frame = Convert.ToInt64(matchFrame.Groups[1].Value, CultureInfo.InvariantCulture);
-            double fps = Convert.ToDouble(matchFps.Groups[1].Value, CultureInfo.InvariantCulture);
-            int sizeKb = Convert.ToInt32(matchSize.Groups[1].Value, CultureInfo.InvariantCulture);
-            double bitrate = Convert.ToDouble(matchBitrate.Groups[1].Value, CultureInfo.InvariantCulture);
+            long? frame = GetLongValue(matchFrame);
+            double? fps = GetDoubleValue(matchFps);
+            int? sizeKb = GetIntValue(matchSize);
+            double? bitrate = GetDoubleValue(matchBitrate);
 
             progressEventArgs = new ConvertProgressEventArgs(processedDuration, TimeSpan.Zero, frame, fps, sizeKb, bitrate);
 
             return true;
         }
+
+        private static long? GetLongValue(Match match)
+        {
+            try
+            {
+                return Convert.ToInt64(match.Groups[1].Value, CultureInfo.InvariantCulture);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static double? GetDoubleValue(Match match)
+        {
+            try
+            {
+                return Convert.ToDouble(match.Groups[1].Value, CultureInfo.InvariantCulture);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static int? GetIntValue(Match match)
+        {
+            try
+            {
+                return Convert.ToInt32(match.Groups[1].Value, CultureInfo.InvariantCulture);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
 
         /// <summary>
         ///     <para> ---- </para>
