@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>MediaToolkit</id>
+        <version>1.1.0.1</version>
+        <title>Media Toolkit</title>
+        <authors>Aydin</authors>
+        <owners>Aydin</owners>
+        <projectUrl>https://github.com/AydinAdn/MediaToolkit</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>MediaToolkit is a .NET library which can convert and process audio and video files. 
+
+Functionality:
+- Grab thumbnails from videos
+- Cut / split videos
+- Convert video files into various other video formats.
+- Perform video transcoding tasks.
+    - Set bit rate
+    - Set frame rate
+    - Set resolution or size
+    - Set aspect ratio
+    - Set duration
+- Perform audio transcoding tasks.
+    - Set audio sample rate
+- Convert video to physical formats using FILM, PAL or NTSC tv standards
+    - DVD
+    - DV
+    - DV50
+    - VCD
+    - SVCD</description>
+        <summary>MediaToolkit is a .NET library which can convert and process audio and video files.</summary>
+        <copyright>Aydin</copyright>
+        <language>en-GB</language>
+        <tags>Media Video Audio converter ffmpeg flv mp4 flash h264 hd 720p 1080p dvd</tags>
+    </metadata>
+</package>
