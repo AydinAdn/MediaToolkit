@@ -31,8 +31,13 @@
         protected Process FFmpegProcess;
 
 
-         protected EngineBase()
-            : this(ConfigurationManager.AppSettings["mediaToolkit.ffmpeg.path"])
+        protected EngineBase()
+           : this(ConfigurationManager.AppSettings["mediaToolkit.ffmpeg.path"])
+        {
+        }
+
+        protected EngineBase(bool enableMultipleRunningProcesses)
+            : this(ConfigurationManager.AppSettings["mediaToolkit.ffmpeg.path"], enableMultipleRunningProcesses)
         {
         }
 

@@ -27,7 +27,17 @@
 
         public Engine(string ffMpegPath) : base(ffMpegPath)
         {
-            
+
+        }
+
+        public Engine(bool enableMultipleRunningProcesses) : base(enableMultipleRunningProcesses)
+        {
+
+        }
+
+        public Engine(string ffMpegPath, bool enableMultipleRunningProcesses) : base(ffMpegPath, enableMultipleRunningProcesses)
+        {
+
         }
 
         /// -------------------------------------------------------------------------------------------------
