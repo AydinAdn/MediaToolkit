@@ -130,12 +130,18 @@
 
             try
             {
-                this.Mutex.WaitOne();
+                if (Mutex != null)
+                {
+                    this.Mutex.WaitOne();
+                }                
                 this.StartFFmpegProcess(engineParameters);
             }
             finally
             {
-                this.Mutex.ReleaseMutex();
+                if (Mutex != null)
+                {
+                    this.Mutex.ReleaseMutex();
+                }                
             }
         }
 

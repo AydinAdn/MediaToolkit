@@ -24,6 +24,7 @@
         protected readonly string FFmpegFilePath;
 
         /// <summary>   The Mutex. </summary>
+        /// <remarks>Null if concurrently running FFmpeg instances are allowed.</remarks>
         protected readonly Mutex Mutex;
 
         /// <summary>   The ffmpeg process. </summary>
@@ -40,9 +41,23 @@
         ///     <para> Initializes FFmpeg.exe; Ensuring that there is a copy</para>
         ///     <para> in the clients temp folder &amp; isn't in use by another process.</para>
         /// </summary>
-        protected EngineBase(string ffMpegPath)
+        protected EngineBase(string ffMpegPath) : this(ffMpegPath,false)
         {
-            this.Mutex = new Mutex(false, LockName);
+        }
+
+            ///-------------------------------------------------------------------------------------------------
+            /// <summary>
+            ///     <para> Initializes FFmpeg.exe; Ensuring that there is a copy</para>
+            ///     <para> in the clients temp folder &amp; isn't in use by another process.</para>
+            /// </summary>
+            /// <param name="enableMultipleRunningProcesses">Whether or not to allow multiple instances of FFmpeg to run concurrently.</param>
+        protected EngineBase(string ffMpegPath, bool enableMultipleRunningProcesses)
+        {
+            if (!enableMultipleRunningProcesses)
+            {
+                this.Mutex = new Mutex(false, LockName);
+            }
+            
             this.isDisposed = false;
 
             if (ffMpegPath.IsNullOrWhiteSpace())
@@ -54,7 +69,11 @@
 
             this.EnsureDirectoryExists ();
             this.EnsureFFmpegFileExists();
-            this.EnsureFFmpegIsNotUsed ();
+
+            if (!enableMultipleRunningProcesses)
+            {
+                this.EnsureFFmpegIsNotUsed();
+            }            
         }
 
         private void EnsureFFmpegIsNotUsed()
