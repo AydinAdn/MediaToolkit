@@ -13,7 +13,7 @@ namespace MediaToolkit
         /// <param name="fps">The frames converted per second</param>
         /// <param name="sizeKb">The current size in Kb of the converted media</param>
         /// <param name="bitrate">The bit rate of the converted media</param>
-        public ConvertProgressEventArgs(TimeSpan processed, TimeSpan totalDuration, long frame, double fps, int sizeKb,
+        public ConvertProgressEventArgs(TimeSpan processed, TimeSpan totalDuration, long? frame, double? fps, int? sizeKb,
             double? bitrate)
         {
             TotalDuration = totalDuration;
@@ -24,9 +24,9 @@ namespace MediaToolkit
             Bitrate = bitrate;
         }
 
-        public long Frame { get; private set; }
-        public double Fps { get; private set; }
-        public int SizeKb { get; private set; }
+        public long? Frame { get; private set; }
+        public double? Fps { get; private set; }
+        public int? SizeKb { get; private set; }
         public TimeSpan ProcessedDuration { get; private set; }
         public double? Bitrate { get; private set; }
         public TimeSpan TotalDuration { get; internal set; }
