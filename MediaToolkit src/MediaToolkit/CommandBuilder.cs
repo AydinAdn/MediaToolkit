@@ -72,6 +72,10 @@ namespace MediaToolkit
                 return commandBuilder.ToString();
             }
 
+            // Audio bit rate
+            if (conversionOptions.AudioBitRate != null)
+                commandBuilder.AppendFormat(" -ab {0}k", conversionOptions.AudioBitRate);
+
             // Audio sample rate
             if (conversionOptions.AudioSampleRate != AudioSampleRate.Default)
                 commandBuilder.AppendFormat(" -ar {0} ", conversionOptions.AudioSampleRate.Remove("Hz"));
