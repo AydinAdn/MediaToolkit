@@ -140,6 +140,29 @@ namespace MediaToolkit.Test
         }
 
         [TestCase]
+        public void Can_GetThumbnailAsByteArray()
+        {
+            var inputFile = new MediaFile { Filename = _inputFilePath };
+            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var localMediaToolkitFfMpeg = Path.Combine(localAppData, "MediaToolkit", "ffmpeg.exe");
+
+            using (var engine = new Engine(localMediaToolkitFfMpeg))
+            {
+                engine.ConvertProgressEvent += engine_ConvertProgressEvent;
+                engine.ConversionCompleteEvent += engine_ConversionCompleteEvent;
+
+                engine.GetMetadata(inputFile);
+
+                var options = new ConversionOptions
+                {
+                    Seek = TimeSpan.FromSeconds(inputFile.Metadata.Duration.TotalSeconds / 2)
+                };
+                var thumbnailByteArray = engine.GetThumbnail(inputFile, options);
+                Assert.AreEqual(9530, thumbnailByteArray.Length);
+            }
+        }
+
+        [TestCase]
         public void Can_GetThumbnailFromHTTPLink()
         {
             string outputPath = string.Format(@"{0}\Get_Thumbnail_FromHTTP_Test.jpg", Path.GetDirectoryName(_outputFilePath));

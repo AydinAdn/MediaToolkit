@@ -20,6 +20,8 @@
         /// </summary>
         public event EventHandler<ConversionCompleteEventArgs> ConversionCompleteEvent;
 
+        private byte[] thumbnailByteArray { get; set; }
+
         public Engine()
         {
             
@@ -117,6 +119,20 @@
                 };
 
             this.FFmpegEngine(engineParams);
+        }
+
+        public byte[] GetThumbnail(MediaFile inputFile,  ConversionOptions options)
+        {
+            EngineParameters engineParams = new EngineParameters
+            {
+                InputFile = inputFile,
+                ConversionOptions = options,
+                Task = FFmpegTask.GetThumbnailStream,
+                ReturningStandardOutput = true
+            };
+
+            this.FFmpegEngine(engineParams);
+            return this.thumbnailByteArray;
         }
         
         #region Private method - Helpers
@@ -290,6 +306,25 @@
                         }
                     }
                 };
+
+                if(engineParameters.ReturningStandardOutput)
+                {
+                    FileStream baseStream = this.FFmpegProcess.StandardOutput.BaseStream as FileStream;
+                    this.thumbnailByteArray = null;
+                    int lastRead = 0;
+
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        byte[] buffer = new byte[4096];
+                        do
+                        {
+                            lastRead = baseStream.Read(buffer, 0, buffer.Length);
+                            ms.Write(buffer, 0, lastRead);
+                        } while (lastRead > 0);
+
+                        this.thumbnailByteArray = ms.ToArray();
+                    }
+                }
 
                 this.FFmpegProcess.BeginErrorReadLine();
                 this.FFmpegProcess.WaitForExit();

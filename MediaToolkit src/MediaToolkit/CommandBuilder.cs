@@ -21,6 +21,8 @@ namespace MediaToolkit
 
                 case FFmpegTask.GetThumbnail:
                     return GetThumbnail(engineParameters.InputFile, engineParameters.OutputFile, engineParameters.ConversionOptions);
+                case FFmpegTask.GetThumbnailStream:
+                    return GetThumbnail(engineParameters.InputFile, engineParameters.ConversionOptions);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -42,6 +44,19 @@ namespace MediaToolkit
 
             return commandBuilder.AppendFormat(" \"{0}\" ", outputFile.Filename).ToString();
         }
+
+        private static string GetThumbnail(MediaFile inputFile,  ConversionOptions conversionOptions)
+        {
+            var commandBuilder = new StringBuilder();
+
+            commandBuilder.AppendFormat(CultureInfo.InvariantCulture, " -ss {0} ", conversionOptions.Seek.GetValueOrDefault(TimeSpan.FromSeconds(1)).TotalSeconds);
+
+            commandBuilder.AppendFormat(" -i \"{0}\"", inputFile.Filename);
+            commandBuilder.AppendFormat(" -vframes {0}", 1);
+            commandBuilder.AppendFormat(" -f mjpeg pipe:1");
+            return commandBuilder.ToString();
+        }
+
 
         private static string Convert(MediaFile inputFile, MediaFile outputFile, ConversionOptions conversionOptions)
         {
