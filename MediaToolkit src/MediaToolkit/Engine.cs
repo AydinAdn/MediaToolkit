@@ -311,17 +311,10 @@
                 {
                     FileStream baseStream = this.FFmpegProcess.StandardOutput.BaseStream as FileStream;
                     this.thumbnailByteArray = null;
-                    int lastRead = 0;
 
                     using (MemoryStream ms = new MemoryStream())
                     {
-                        byte[] buffer = new byte[4096];
-                        do
-                        {
-                            lastRead = baseStream.Read(buffer, 0, buffer.Length);
-                            ms.Write(buffer, 0, lastRead);
-                        } while (lastRead > 0);
-
+                        baseStream.CopyTo(ms);
                         this.thumbnailByteArray = ms.ToArray();
                     }
                 }
