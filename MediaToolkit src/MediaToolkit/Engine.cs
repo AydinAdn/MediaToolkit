@@ -123,7 +123,9 @@
 
         private void FFmpegEngine(EngineParameters engineParameters)
         {
-            if (!engineParameters.InputFile.Filename.StartsWith("http://") && !File.Exists(engineParameters.InputFile.Filename))
+            if (!engineParameters.InputFile.Filename.StartsWith("http://")
+            && !engineParameters.InputFile.Filename.StartsWith("https://")
+            && !File.Exists(engineParameters.InputFile.Filename))
             {
                 throw new FileNotFoundException(Resources.Exception_Media_Input_File_Not_Found, engineParameters.InputFile.Filename);
             }
