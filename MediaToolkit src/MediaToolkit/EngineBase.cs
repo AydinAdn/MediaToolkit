@@ -137,6 +137,11 @@
             {
                 this.FFmpegProcess.Dispose();
             }            
+
+            if (this.Mutex != null)
+            {
+                Mutex.Close();
+            }
             this.FFmpegProcess = null;
             this.isDisposed = true;
         }
