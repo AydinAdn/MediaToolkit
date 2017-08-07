@@ -54,25 +54,6 @@
 
             this.EnsureDirectoryExists ();
             this.EnsureFFmpegFileExists();
-            this.EnsureFFmpegIsNotUsed ();
-        }
-
-        private void EnsureFFmpegIsNotUsed()
-        {
-            try
-            {
-                this.Mutex.WaitOne();
-                Process.GetProcessesByName(Resources.FFmpegProcessName)
-                       .ForEach(process =>
-                       {
-                           process.Kill();
-                           process.WaitForExit();
-                       });
-            }
-            finally
-            {
-                this.Mutex.ReleaseMutex();
-            }
         }
 
         private void EnsureDirectoryExists()
@@ -133,7 +114,7 @@
                 return;
             }
 
-            if(FFmpegProcess != null)
+            if (FFmpegProcess != null)
             {
                 this.FFmpegProcess.Dispose();
             }            
