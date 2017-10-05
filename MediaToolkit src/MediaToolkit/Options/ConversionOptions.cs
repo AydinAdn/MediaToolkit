@@ -7,7 +7,7 @@ namespace MediaToolkit.Options
         /// <summary>
         ///     <para> --- </para>
         ///     <para> Cut audio / video from existing media                </para>
-        ///     <para> Example: To cut a 15 minute section                  </para> 
+        ///     <para> Example: To cut a 15 minute section                  </para>
         ///     <para> out of a 30 minute video starting                    </para>
         ///     <para> from the 5th minute:                                 </para>
         ///     <para> The start position would be: TimeSpan.FromMinutes(5) </para>
@@ -25,8 +25,8 @@ namespace MediaToolkit.Options
         /// </param>
         public void CutMedia(TimeSpan seekToPosition, TimeSpan length)
         {
-            this.Seek = seekToPosition;
-            this.MaxVideoDuration = length;
+            Seek = seekToPosition;
+            MaxVideoDuration = length;
         }
 
         /// <summary>
@@ -42,12 +42,12 @@ namespace MediaToolkit.Options
         /// <summary>
         ///     The maximum duration
         /// </summary>
-        public TimeSpan? MaxVideoDuration = null;
+        public TimeSpan? MaxVideoDuration;
 
         /// <summary>
         ///     The frame to begin seeking from.
         /// </summary>
-        public TimeSpan? Seek = null;
+        public TimeSpan? Seek;
 
         /// <summary>
         ///     Predefined audio and video options for various file formats,
@@ -100,5 +100,4 @@ namespace MediaToolkit.Options
         /// </summary>
         public bool BaselineProfile { get; set; }
     }
-
 }

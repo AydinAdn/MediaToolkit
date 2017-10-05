@@ -1,20 +1,14 @@
+using MediaToolkit.Model;
+using MediaToolkit.Options;
+using MediaToolkit.Util;
+
 namespace MediaToolkit
 {
-    using MediaToolkit.Model;
-    using MediaToolkit.Options;
-    using MediaToolkit.Util;
-
     /// -------------------------------------------------------------------------------------------------
     /// <summary>   Configures the engine to perform the correct task. </summary>
     internal class EngineParameters
     {
-        internal bool HasCustomArguments
-        {
-            get
-            {
-                return !this.CustomArguments.IsNullOrWhiteSpace();
-            }
-        }
+        internal bool HasCustomArguments => !CustomArguments.IsNullOrWhiteSpace();
 
         /// -------------------------------------------------------------------------------------------------
         /// <summary>   Gets or sets options for controlling the conversion. </summary>

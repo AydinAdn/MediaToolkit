@@ -7,7 +7,7 @@ using System.Text;
 
 namespace MediaToolkit
 {
-    internal class CommandBuilder
+    internal static class CommandBuilder
     {
         internal static string Serialize(EngineParameters engineParameters)
         {
@@ -28,7 +28,7 @@ namespace MediaToolkit
 
         private static string GetMetadata(MediaFile inputFile)
         {
-            return string.Format("-i \"{0}\" ", inputFile.Filename);
+            return $"-i \"{inputFile.Filename}\" ";
         }
 
         private static string GetThumbnail(MediaFile inputFile, MediaFile outputFile, ConversionOptions conversionOptions)
@@ -99,7 +99,7 @@ namespace MediaToolkit
             }
             else if (conversionOptions.VideoSize != VideoSize.Default)
             {
-                string size = conversionOptions.VideoSize.ToLower();
+                var size = conversionOptions.VideoSize.ToLower();
                 if (size.StartsWith("_")) size = size.Replace("_", "");
                 if (size.Contains("_")) size = size.Replace("_", "-");
 

@@ -24,11 +24,11 @@ namespace MediaToolkit
             Bitrate = bitrate;
         }
 
-        public long Frame { get; private set; }
-        public double Fps { get; private set; }
-        public int SizeKb { get; private set; }
-        public TimeSpan ProcessedDuration { get; private set; }
-        public double? Bitrate { get; private set; }
+        public long Frame { get; }
+        public double Fps { get; }
+        public int SizeKb { get; }
+        public TimeSpan ProcessedDuration { get; }
+        public double? Bitrate { get; }
         public TimeSpan TotalDuration { get; internal set; }
     }
 }

@@ -1,42 +1,5 @@
 ﻿namespace MediaToolkit.Options
 {
-    public enum Target
-    {
-        Default,
-        VCD,
-        SVCD,
-        DVD,
-        DV,
-        DV50
-    }
-
-    public enum TargetStandard
-    {
-        Default,
-        PAL,
-        NTSC,
-        FILM
-    }
-
-    public enum AudioSampleRate
-    {
-        Default,
-        Hz22050,
-        Hz44100,
-        Hz48000
-    }
-
-    public enum VideoAspectRatio
-    {
-        Default,
-        R3_2,
-        R4_3,
-        R5_3,
-        R5_4,
-        R16_9,
-        R16_10,
-        R17_9
-    }
 
     public enum VideoSize
     {
