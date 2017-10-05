@@ -17,7 +17,8 @@ namespace MediaToolkit
         /// <summary>   Used for locking the FFmpeg process to one thread. </summary>
         private const string LockName = "MediaToolkit.Engine.LockName";
 
-        private const string DefaultFFmpegFilePath = @"/MediaToolkit/ffmpeg.exe";
+        private const string DefaultFFmpegFileWindowsPath = @"/MediaToolkit/ffmpeg.exe";
+        private const string DefaultFFmpegFileLinuxPath = @"ffmpeg";
 
         /// <summary>   Full pathname of the FFmpeg file. </summary>
         protected readonly string FFmpegFilePath;
@@ -44,34 +45,35 @@ namespace MediaToolkit
             Mutex = new Mutex(false, LockName);
             _isDisposed = false;
 
+            var isWindows = IsWindows();
+
             if (ffMpegPath.IsNullOrWhiteSpace())
-                ffMpegPath = DefaultFFmpegFilePath;
+                ffMpegPath = isWindows ? DefaultFFmpegFileWindowsPath : DefaultFFmpegFileLinuxPath;
 
             FFmpegFilePath = ffMpegPath;
 
+            if (!isWindows) return;
+
             EnsureDirectoryExists();
             EnsureFFmpegFileExists();
-            EnsureFFmpegIsNotUsed();
         }
 
-        private void EnsureFFmpegIsNotUsed()
+        private bool IsWindows()
         {
-            try
+            var os = Environment.OSVersion;
+            var pid = os.Platform;
+            switch (pid)
             {
-                Mutex.WaitOne();
-                Process.GetProcessesByName(Resources.FFmpegProcessName)
-                    .ForEach(process =>
-                    {
-                        process.Kill();
-                        process.WaitForExit();
-                    });
-            }
-            finally
-            {
-                Mutex.ReleaseMutex();
+                case PlatformID.Win32NT:
+                case PlatformID.Win32S:
+                case PlatformID.Win32Windows:
+                case PlatformID.WinCE:
+                    return true;
+                default:
+                    return false;
             }
         }
-
+ 
         private void EnsureDirectoryExists()
         {
             var directory = Path.GetDirectoryName(FFmpegFilePath) ?? Directory.GetCurrentDirectory();
