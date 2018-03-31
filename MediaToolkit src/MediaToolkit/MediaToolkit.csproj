@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -65,9 +65,16 @@
     <Compile Include="EngineBase.cs" />
     <Compile Include="EngineParameters.cs" />
     <Compile Include="FFmpegTask.cs" />
+    <Compile Include="Model\Audio.cs" />
     <Compile Include="Model\Metadata.cs" />
+    <Compile Include="Model\Video.cs" />
+    <Compile Include="Options\AudioSampleRate.cs" />
     <Compile Include="Options\ConversionOptions.cs" />
     <Compile Include="Options\CropRectangle.cs" />
+    <Compile Include="Options\Target.cs" />
+    <Compile Include="Options\TargetStandard.cs" />
+    <Compile Include="Options\VideoAspectRatio.cs" />
+    <Compile Include="Options\VideoSize.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -75,9 +82,9 @@
     </Compile>
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="Model\MediaFile.cs" />
-    <Compile Include="Options\ConversionEnums.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\Document.cs" />
+    <Compile Include="Util\Find.cs" />
     <Compile Include="Util\RegexEngine.cs" />
   </ItemGroup>
   <ItemGroup>

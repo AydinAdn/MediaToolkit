@@ -14,16 +14,17 @@ namespace MediaToolkit.Util
 {
     public static class Extensions
     {
-        private const int BUFF_SIZE = 16*1024;
+        private const int BuffSize = 16 * 1024;
 
         internal static void CopyTo(this Stream input, Stream output)
         {
-            byte[] buffer = new byte[Extensions.BUFF_SIZE];
+            var buffer = new byte[BuffSize];
             int bytesRead;
 
-            while ((bytesRead = input.Read(buffer, 0, buffer.Length)) > 0) { output.Write(buffer, 0, bytesRead); }
+            while ((bytesRead = input.Read(buffer, 0, buffer.Length)) > 0) output.Write(buffer, 0, bytesRead);
         }
 
+        // ReSharper disable once UnusedMember.Global
         public static string FormatInvariant(this string value, params object[] args)
         {
             try
@@ -32,7 +33,8 @@ namespace MediaToolkit.Util
                     ? string.Empty
                     : string.Format(CultureInfo.InvariantCulture, value, args);
             }
-            catch (FormatException ex) {
+            catch (FormatException)
+            {
                 return value;
             }
         }
@@ -40,7 +42,7 @@ namespace MediaToolkit.Util
         internal static bool IsNullOrWhiteSpace(this string value)
         {
             return string.IsNullOrEmpty(value) || value.Trim()
-                .Length == 0;
+                       .Length == 0;
         }
 
         internal static string Remove(this Enum enumerable, string text)
@@ -57,9 +59,9 @@ namespace MediaToolkit.Util
 
         public static void ForEach<T>(this IEnumerable<T> collection, Action<T> action)
         {
-            if (action == null) throw new ArgumentNullException("action");
+            if (action == null) throw new ArgumentNullException(nameof(action));
 
-            foreach (T t in collection) action(t);
+            foreach (var t in collection) action(t);
         }
     }
 }

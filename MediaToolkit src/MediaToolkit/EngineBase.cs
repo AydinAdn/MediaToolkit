@@ -1,24 +1,24 @@
-﻿namespace MediaToolkit
+﻿using System;
+using System.Configuration;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
+using System.Reflection;
+using System.Threading;
+using MediaToolkit.Properties;
+using MediaToolkit.Util;
+
+namespace MediaToolkit
 {
-    using System;
-    using System.Configuration;
-    using System.Diagnostics;
-    using System.IO;
-    using System.IO.Compression;
-    using System.Reflection;
-    using System.Threading;
-
-    using MediaToolkit.Properties;
-    using MediaToolkit.Util;
-
     public class EngineBase : IDisposable
     {
-        private bool isDisposed;
+        private bool _isDisposed;
 
         /// <summary>   Used for locking the FFmpeg process to one thread. </summary>
         private const string LockName = "MediaToolkit.Engine.LockName";
 
-        private const string DefaultFFmpegFilePath = @"/MediaToolkit/ffmpeg.exe";
+        private const string DefaultFFmpegFileWindowsPath = @"/MediaToolkit/ffmpeg.exe";
+        private const string DefaultFFmpegFileLinuxPath = @"ffmpeg";
 
         /// <summary>   Full pathname of the FFmpeg file. </summary>
         protected readonly string FFmpegFilePath;
@@ -30,92 +30,84 @@
         protected Process FFmpegProcess;
 
 
-         protected EngineBase()
+        protected EngineBase()
             : this(ConfigurationManager.AppSettings["mediaToolkit.ffmpeg.path"])
         {
         }
 
-        ///-------------------------------------------------------------------------------------------------
+        /// -------------------------------------------------------------------------------------------------
         /// <summary>
         ///     <para> Initializes FFmpeg.exe; Ensuring that there is a copy</para>
         ///     <para> in the clients temp folder &amp; isn't in use by another process.</para>
         /// </summary>
         protected EngineBase(string ffMpegPath)
         {
-            this.Mutex = new Mutex(false, LockName);
-            this.isDisposed = false;
+            Mutex = new Mutex(false, LockName);
+            _isDisposed = false;
+
+            var isWindows = IsWindows();
 
             if (ffMpegPath.IsNullOrWhiteSpace())
-            {
-                ffMpegPath = DefaultFFmpegFilePath;
-            }
+                ffMpegPath = isWindows ? DefaultFFmpegFileWindowsPath : DefaultFFmpegFileLinuxPath;
 
-            this.FFmpegFilePath = ffMpegPath;
+            FFmpegFilePath = ffMpegPath;
 
-            this.EnsureDirectoryExists ();
-            this.EnsureFFmpegFileExists();
-            this.EnsureFFmpegIsNotUsed ();
+            if (!isWindows) return;
+
+            EnsureDirectoryExists();
+            EnsureFFmpegFileExists();
         }
 
-        private void EnsureFFmpegIsNotUsed()
+        private bool IsWindows()
         {
-            try
+            var os = Environment.OSVersion;
+            var pid = os.Platform;
+            switch (pid)
             {
-                this.Mutex.WaitOne();
-                Process.GetProcessesByName(Resources.FFmpegProcessName)
-                       .ForEach(process =>
-                       {
-                           process.Kill();
-                           process.WaitForExit();
-                       });
-            }
-            finally
-            {
-                this.Mutex.ReleaseMutex();
+                case PlatformID.Win32NT:
+                case PlatformID.Win32S:
+                case PlatformID.Win32Windows:
+                case PlatformID.WinCE:
+                    return true;
+                default:
+                    return false;
             }
         }
-
+ 
         private void EnsureDirectoryExists()
         {
-            string directory = Path.GetDirectoryName(this.FFmpegFilePath) ?? Directory.GetCurrentDirectory(); ;
+            var directory = Path.GetDirectoryName(FFmpegFilePath) ?? Directory.GetCurrentDirectory();
 
             if (!Directory.Exists(directory))
-            {
                 Directory.CreateDirectory(directory);
-            }
         }
 
         private void EnsureFFmpegFileExists()
         {
-            if (!File.Exists(this.FFmpegFilePath))
-            {
-                UnpackFFmpegExecutable(this.FFmpegFilePath);
-            }
+            if (!File.Exists(FFmpegFilePath))
+                UnpackFFmpegExecutable(FFmpegFilePath);
         }
 
-        ///-------------------------------------------------------------------------------------------------
+        /// -------------------------------------------------------------------------------------------------
         /// <summary>   Unpack ffmpeg executable. </summary>
         /// <exception cref="Exception">    Thrown when an exception error condition occurs. </exception>
         private static void UnpackFFmpegExecutable(string path)
         {
-            Stream compressedFFmpegStream = Assembly.GetExecutingAssembly()
-                                                    .GetManifestResourceStream(Resources.FFmpegManifestResourceName);
+            var compressedFFmpegStream = Assembly.GetExecutingAssembly()
+                .GetManifestResourceStream(Resources.FFmpegManifestResourceName);
 
             if (compressedFFmpegStream == null)
-            {
                 throw new Exception(Resources.Exceptions_Null_FFmpeg_Gzip_Stream);
-            }
 
-            using (FileStream fileStream = new FileStream(path, FileMode.Create))
-            using (GZipStream compressedStream = new GZipStream(compressedFFmpegStream, CompressionMode.Decompress))
+            using (var fileStream = new FileStream(path, FileMode.Create))
+            using (var compressedStream = new GZipStream(compressedFFmpegStream, CompressionMode.Decompress))
             {
                 compressedStream.CopyTo(fileStream);
             }
         }
 
 
-
-        ///-------------------------------------------------------------------------------------------------
+        /// -------------------------------------------------------------------------------------------------
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting
         ///     unmanaged resources.
@@ -123,22 +115,17 @@
         /// <remarks>   Aydin Aydin, 30/03/2015. </remarks>
         public virtual void Dispose()
         {
-            this.Dispose(true);
+            Dispose(true);
         }
 
         private void Dispose(bool disposing)
         {
-            if (!disposing || this.isDisposed)
-            {
+            if (!disposing || _isDisposed)
                 return;
-            }
 
-            if(FFmpegProcess != null)
-            {
-                this.FFmpegProcess.Dispose();
-            }            
-            this.FFmpegProcess = null;
-            this.isDisposed = true;
+            FFmpegProcess?.Dispose();
+            FFmpegProcess = null;
+            _isDisposed = true;
         }
     }
 }

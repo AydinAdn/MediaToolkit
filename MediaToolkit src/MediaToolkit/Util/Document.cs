@@ -1,9 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace MediaToolkit.Util
 {
-    using System;
-
     public class Document
     {
         [Obsolete("Replaced by the method `MediaToolkit.Util.Document.IsLocked`")]
@@ -20,8 +19,7 @@ namespace MediaToolkit.Util
             }
             finally
             {
-                if (fileStream != null)
-                    fileStream.Close();
+                fileStream?.Close();
             }
 
             return false;
@@ -31,11 +29,9 @@ namespace MediaToolkit.Util
         internal static bool IsLocked(string filePath)
         {
             if (filePath.IsNullOrWhiteSpace())
-            {
-                throw new ArgumentNullException("filePath");
-            }
+                throw new ArgumentNullException(nameof(filePath));
 
-            FileInfo file = new FileInfo(filePath);
+            var file = new FileInfo(filePath);
             FileStream fileStream = null;
 
             try
@@ -48,13 +44,10 @@ namespace MediaToolkit.Util
             }
             finally
             {
-                if (fileStream != null)
-                    fileStream.Close();
+                fileStream?.Close();
             }
 
             return false;
         }
-
-
     }
 }
