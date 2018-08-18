@@ -11,7 +11,7 @@ namespace MediaToolkit.Test
     [TestFixture]
     public class ConvertTest
     {
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void Init()
         {
             // Raise progress events?
@@ -29,8 +29,7 @@ namespace MediaToolkit.Test
 
                 return;
             }
-
-            var directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
+            var directoryInfo = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
             Debug.Assert(directoryInfo.Parent != null, "directoryInfo.Parent != null");
 
             DirectoryInfo testDirectoryInfo = directoryInfo.Parent.Parent;
@@ -74,7 +73,7 @@ namespace MediaToolkit.Test
                 engine.Convert(inputFile, outputFile, options);
                 engine.GetMetadata(outputFile);
             }
-            
+
             Assert.That(File.Exists(outputPath));
             // Input file is 33 seconds long, seeking to the 30th second and then 
             // attempting to cut another 25 seconds isn't possible as there's only 3 seconds
