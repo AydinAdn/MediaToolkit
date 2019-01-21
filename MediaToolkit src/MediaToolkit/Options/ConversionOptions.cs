@@ -38,6 +38,11 @@ namespace MediaToolkit.Options
         ///     Audio sample rate
         /// </summary>
         public AudioSampleRate AudioSampleRate = AudioSampleRate.Default;
+        
+        /// <summary>
+        ///     Audio sample rate
+        /// </summary>
+        public bool AudioDownmix = false;
 
         /// <summary>
         ///     The maximum duration
