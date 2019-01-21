@@ -79,6 +79,10 @@ namespace MediaToolkit
             // Audio sample rate
             if (conversionOptions.AudioSampleRate != AudioSampleRate.Default)
                 commandBuilder.AppendFormat(" -ar {0} ", conversionOptions.AudioSampleRate.Remove("Hz"));
+            
+            //Audio downmix
+            if (conversionOptions.AudioDownmix)
+                commandBuilder.AppendFormat(" -ac 1 ");
 
             // Maximum video duration
             if (conversionOptions.MaxVideoDuration != null)
