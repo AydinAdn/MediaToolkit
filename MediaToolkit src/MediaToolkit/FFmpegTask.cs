@@ -14,6 +14,9 @@ namespace MediaToolkit
         GetThumbnail,
         
         /// <summary>   An enum constant representing the extract frames option. </summary>
-        ExtractFrames
+        ExtractFrames,
+        
+        /// <summary>   An enum constant representing the convertion of frames to video option. </summary>
+        FramesToVideo
     }
 }
