@@ -52,7 +52,7 @@ namespace MediaToolkit
 
             commandBuilder.AppendFormat(" -i \"{0}\" ", inputFile.Filename);
 
-            return commandBuilder.AppendFormat(@" -r 1/1 " + Path.GetDirectoryName(inputFile.Filename) + "\\" + "frame%05d.jpg ").ToString();
+            return commandBuilder.AppendFormat(" " + Path.GetDirectoryName(inputFile.Filename) + "\\" + "frame%06d.jpg ").ToString();
 
         }
 
