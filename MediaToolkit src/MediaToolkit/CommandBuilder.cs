@@ -24,6 +24,8 @@ namespace MediaToolkit
                     return GetThumbnail(engineParameters.InputFile, engineParameters.OutputFile, engineParameters.ConversionOptions);
                 case FFmpegTask.ExtractFrames:
                     return ExtractFrames(engineParameters.InputFile);
+                case FFmpegTask.FramesToVideo:
+                    return FramesToVideo(engineParameters.InputFile, engineParameters.OutputFile, engineParameters.fps);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -53,6 +55,16 @@ namespace MediaToolkit
             commandBuilder.AppendFormat(" -i \"{0}\" ", inputFile.Filename);
 
             return commandBuilder.AppendFormat(" " + Path.GetDirectoryName(inputFile.Filename) + "\\" + "frame%06d.jpg ").ToString();
+
+        }
+        
+        private static string FramesToVideo(MediaFile inputFile, MediaFile outputFile,int fps)
+        {
+            var commandBuilder = new StringBuilder();
+
+            commandBuilder.AppendFormat(" -framerate {0} -i \"{1}\" ", fps.ToString(), inputFile.Filename);
+
+            return commandBuilder.AppendFormat(" \"{0}\" ", outputFile.Filename).ToString();
 
         }
 
