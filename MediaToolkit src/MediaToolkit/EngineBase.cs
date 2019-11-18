@@ -42,7 +42,7 @@
 		/// </summary>
 		protected EngineBase(string ffMpegPath)
 		{
-			var lockName = $"{LockName}-{Guid.NewGuid()}";
+			var lockName = $"{LockName}-{ConfigurationManager.AppSettings["mediaToolkit.application.name"]}";
 			this.Mutex = new Mutex(false, lockName);
 			this.isDisposed = false;
 
