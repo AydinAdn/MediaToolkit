@@ -1,8 +1,6 @@
 ﻿using MediaToolkit.Core.CommandHandler;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using NUnit.Framework;
-using System;
 using System.Threading.Tasks;
 
 namespace MediaToolkit.Core.Test
@@ -13,13 +11,14 @@ namespace MediaToolkit.Core.Test
         [Test]
         public async Task Instantiation()
         {
-            var factory = LoggerFactory.Create(b =>
+            ILoggerFactory factory = LoggerFactory.Create(b =>
             {
                 b.AddConsole();
+                b.SetMinimumLevel(LogLevel.Trace);
             });
-            var logger = factory.CreateLogger<Toolkit>();
+            ILogger<Toolkit> logger = factory.CreateLogger<Toolkit>();
 
-            var mediaToolkit = new Toolkit(logger);
+            Toolkit mediaToolkit = new Toolkit(logger);
 
             await mediaToolkit.ExecuteInstruction(new EmptyInstruction(), default);
         }
@@ -30,7 +29,8 @@ namespace MediaToolkit.Core.Test
     {
         public EmptyInstruction()
         {
-            this.Instruction = "";
+            this.Instruction = @"-i ""C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\BigBunny.m4v""  ""C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\Convert_Basic_Test.avi""";
+
         }
         public string Instruction { get; set; }
     }
