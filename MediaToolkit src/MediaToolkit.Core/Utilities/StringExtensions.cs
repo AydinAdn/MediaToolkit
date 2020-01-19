@@ -12,8 +12,5 @@ namespace MediaToolkit.Core.Utilities
         {
             return String.IsNullOrWhiteSpace(text);
         }
-
-        //public static string ToLower(this string)
-
     }
 }
