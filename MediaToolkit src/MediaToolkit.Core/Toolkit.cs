@@ -13,17 +13,17 @@ using System.Threading.Tasks;
 
 namespace MediaToolkit.Core
 {
-    public class MediaToolkit : IDisposable
+    public class Toolkit : IDisposable
     {
         ILogger logger;
         private string ffmpegExePath;
 
-        public MediaToolkit(ILogger logger) : this(logger, @"/MediaToolkit/ffmpeg.exe")
+        public Toolkit(ILogger logger) : this(logger, Directory.GetCurrentDirectory() + @"/MediaToolkit/ffmpeg.exe")
         {
         }
 
         /// <param name="ffmpegPath">Custom path of ffmpegFile</param>
-        public MediaToolkit(ILogger logger, string ffmpegPath)
+        public Toolkit(ILogger logger, string ffmpegPath)
         {
             this.logger = logger;
             this.ffmpegExePath = ffmpegPath;
@@ -34,6 +34,8 @@ namespace MediaToolkit.Core
             EnsureDirectoryExists(this.ffmpegExePath);
             await EnsureFFmpegFileExistsAsync(this.ffmpegExePath);
 
+            // We're creating a temporary copy of the ffmpeg.exe to enable the client the option of processing multiple files concurrently, each process having their own exe.
+            // The file is deleted once processing has completed or the application has faulted.
             string ffmpegExeCopyPath = this.ChangeFileName(this.ffmpegExePath, Path.GetRandomFileName());
             await CopyFileAsync(ffmpegExePath, ffmpegExeCopyPath);
 
@@ -60,7 +62,17 @@ namespace MediaToolkit.Core
                         logger.LogInformation(received.Data);
                         if (token.IsCancellationRequested)
                         {
-                            throw new Exception();
+                            logger.LogInformation("Token has been cancelled, killing FFmpeg process");
+
+                            try
+                            {
+                                ffmpegProcess.Kill();
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                // swallow exceptions that are thrown when killing the process, 
+                                // one possible candidate is the application ending naturally before we get a chance to kill it
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -70,6 +82,8 @@ namespace MediaToolkit.Core
                         
                         try
                         {
+                            logger.LogError(ex, "FFmpeg faulted, killing FFmpeg process.");
+
                             ffmpegProcess.Kill();
                         }
                         catch (InvalidOperationException)
@@ -80,19 +94,27 @@ namespace MediaToolkit.Core
                     }
                 };
 
+                logger.LogInformation("Begin reading from ffmpeg console");
+
                 ffmpegProcess.BeginErrorReadLine();
                 ffmpegProcess.WaitForExit();
+                logger.LogInformation("FFmpeg process has completed");
+
             }
+
+            logger.LogInformation("Deleting {0}", ffmpegExeCopyPath);
+            File.Delete(ffmpegExeCopyPath);
+            logger.LogInformation("Deleted", ffmpegExeCopyPath);
         }
 
         private void EnsureDirectoryExists(string directory)
         {
             //string directory = Path.GetDirectoryName(this.FFmpegFilePath) ?? Directory.GetCurrentDirectory(); ;
             logger.LogInformation("Checking that FFmpeg directory exists at {0}", directory);
-            if (!Directory.Exists(directory))
+            if (!Directory.Exists(Path.GetDirectoryName(directory)))
             {
                 logger.LogInformation("Directory not found. Creating directory for FFmpeg at {0}", directory);
-                Directory.CreateDirectory(directory);
+                Directory.CreateDirectory(Path.GetDirectoryName(directory));
             }
         }
 
@@ -108,7 +130,7 @@ namespace MediaToolkit.Core
 
         private async Task UnpackFFmpegExecutableAsync(string path)
         {
-            logger.LogInformation("Locating compressed FFmpeg.exe");
+            logger.LogInformation("Locating compressed FFmpeg.exe in embedded resources");
 
             Stream compressedFFmpegStream = Assembly.GetExecutingAssembly()
                                                     .GetManifestResourceStream("MediaToolkit.Core.Resources.FFmpeg.exe.gz");
@@ -119,7 +141,8 @@ namespace MediaToolkit.Core
 
                 throw new Exception("FFmpeg GZip stream is null");
             }
-
+            
+            logger.LogInformation("Begin decompressing FFmpeg.exe");
             using (FileStream fileStream = new FileStream(path, FileMode.Create))
             using (GZipStream compressedStream = new GZipStream(compressedFFmpegStream, CompressionMode.Decompress))
             {
@@ -131,9 +154,13 @@ namespace MediaToolkit.Core
 
         private async Task CopyFileAsync(string sourceFile, string destinationFile)
         {
+            logger.LogInformation("Copying FFmpeg.exe to {0}", destinationFile);
+
             using (var sourceStream = new FileStream(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
             using (var destinationStream = new FileStream(destinationFile, FileMode.CreateNew, FileAccess.Write, FileShare.None, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan))
                 await sourceStream.CopyToAsync(destinationStream);
+
+            logger.LogInformation("Successfully copied to {0}", destinationFile);
         }
 
         private string ChangeFileName(string from, string to)

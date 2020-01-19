@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaToolkit.Test", "MediaT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaToolkit.Core", "MediaToolkit.Core\MediaToolkit.Core.csproj", "{9EEDF4F3-F652-46FD-90A1-C267B1D0C8CB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaToolkit.Core.Test", "MediaToolkit.Core.Test\MediaToolkit.Core.Test.csproj", "{EAB6640C-5CDF-4EC6-AAEC-AB2145E1782D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,12 @@ Global
 		{9EEDF4F3-F652-46FD-90A1-C267B1D0C8CB}.DebugToConsole|Any CPU.Build.0 = Debug|Any CPU
 		{9EEDF4F3-F652-46FD-90A1-C267B1D0C8CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EEDF4F3-F652-46FD-90A1-C267B1D0C8CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAB6640C-5CDF-4EC6-AAEC-AB2145E1782D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAB6640C-5CDF-4EC6-AAEC-AB2145E1782D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAB6640C-5CDF-4EC6-AAEC-AB2145E1782D}.DebugToConsole|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAB6640C-5CDF-4EC6-AAEC-AB2145E1782D}.DebugToConsole|Any CPU.Build.0 = Debug|Any CPU
+		{EAB6640C-5CDF-4EC6-AAEC-AB2145E1782D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAB6640C-5CDF-4EC6-AAEC-AB2145E1782D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
