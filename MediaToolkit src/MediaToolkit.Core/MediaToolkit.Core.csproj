@@ -92,7 +92,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Infrastructure\IInstruction.cs" />
+    <Compile Include="Infrastructure\IInstructionBuilder.cs" />
     <Compile Include="Toolkit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\IEnumerableExtensions.cs" />

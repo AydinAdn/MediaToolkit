@@ -28,7 +28,7 @@ namespace MediaToolkit.Core
             this.ffmpegExePath = ffmpegPath;
         }
 
-        public async Task ExecuteInstruction(IInstruction instruction, CancellationToken token)
+        public async Task ExecuteInstruction(IInstructionBuilder instructionBuilder, CancellationToken token)
         {
             this.CreateDirectoryIfMissing(this.ffmpegExePath);
             await this.RestoreFFmpegFileIfMissing(this.ffmpegExePath);
@@ -40,7 +40,7 @@ namespace MediaToolkit.Core
 
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                Arguments = "-nostdin -y -loglevel info " + instruction.Instruction,
+                Arguments = "-nostdin -y -loglevel info " + instructionBuilder.BuildInstructions(),
                 FileName = ffmpegExeCopyPath,
                 CreateNoWindow = true,
                 RedirectStandardInput = false,

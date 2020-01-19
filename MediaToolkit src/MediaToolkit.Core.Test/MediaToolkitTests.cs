@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using System.Threading.Tasks;
@@ -11,6 +13,9 @@ namespace MediaToolkit.Core.Test
     [TestFixture]
     public class MediaToolkitTests
     {
+        private static string _testDir = new DirectoryInfo(Directory.GetCurrentDirectory()).Parent.Parent.FullName + "/TestResults";
+
+
         [Test]
         public async Task Instantiation()
         {
@@ -23,18 +28,16 @@ namespace MediaToolkit.Core.Test
 
             Toolkit mediaToolkit = new Toolkit(logger);
 
-            await mediaToolkit.ExecuteInstruction(new EmptyInstruction(), default);
+            await mediaToolkit.ExecuteInstruction(new EmptyInstructionBuilder(), default);
         }
 
         public const string TestVideoResourceId = "MediaToolkit.Core.Test.Resources.BigBunny.m4v";
-        public static string TestDir = "/TestResults";
+        public static string TestDir { get => _testDir; set => _testDir = value; }
+
 
         [Test]
         public async Task UseVideo()
         {
-            DirectoryInfo i = new DirectoryInfo(Directory.GetCurrentDirectory());
-
-            TestDir = i.Parent.Parent.FullName + TestDir;
             Directory.CreateDirectory(TestDir);
             Console.WriteLine(TestDir);
             Assembly currentAssembly = Assembly.GetExecutingAssembly();
@@ -49,18 +52,72 @@ namespace MediaToolkit.Core.Test
 
             Console.WriteLine(videoPath);
         }
+
+        [Test]
+        public async Task TrimMediaInstructionBuilder_Test()
+        {
+            Directory.CreateDirectory(TestDir);
+            Console.WriteLine(TestDir);
+            string videoPath = TestDir + "/BigBunny.m4v";
+
+            Assembly currentAssembly = Assembly.GetExecutingAssembly();
+
+            using (Stream embeddedVideoStream = currentAssembly.GetManifestResourceStream(TestVideoResourceId))
+            using (FileStream fileStream = new FileStream(videoPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+            {
+                await embeddedVideoStream.CopyToAsync(fileStream);
+            }
+
+            ILoggerFactory factory = LoggerFactory.Create(b =>
+            {
+                b.AddConsole();
+                b.SetMinimumLevel(LogLevel.Trace);
+            });
+            ILogger<Toolkit> logger = factory.CreateLogger<Toolkit>();
+
+            Toolkit mediaToolkit = new Toolkit(logger);
+
+            await mediaToolkit.ExecuteInstruction(new TrimMediaInstructionBuilder{
+                SeekFrom = TimeSpan.FromSeconds(30),
+                InputFilePath = videoPath,
+                OutputFilePath = Path.ChangeExtension(videoPath, "Cut_Video_Test.mp4"),
+                Duration = TimeSpan.FromSeconds(25)
+            },  default);
+        }
+
     }
 
-    public class EmptyInstruction : IInstruction
+    public class EmptyInstructionBuilder : IInstructionBuilder
     {
-        public EmptyInstruction()
+        public EmptyInstructionBuilder()
         {
             this.Instruction = @"-i ""C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\BigBunny.m4v""  ""C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\Convert_Basic_Test.avi""";
 
         }
         public string Instruction { get; set; }
+        public string BuildInstructions()
+        {
+            throw new NotImplementedException();
+        }
     }
 
+    public class TrimMediaInstructionBuilder : IInstructionBuilder
+    {
+        public string   InputFilePath  { get; set; }
+        public string   OutputFilePath { get; set; }
+        public TimeSpan Duration       { get; set; }
+        public TimeSpan SeekFrom       { get; set; }
+
+        public string BuildInstructions()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendFormat(CultureInfo.InvariantCulture, " -ss {0} ",    this.SeekFrom.TotalSeconds);
+            builder.AppendFormat(CultureInfo.InvariantCulture, " -i \"{0}\" ", this.InputFilePath);
+            builder.AppendFormat(CultureInfo.InvariantCulture, " -t {0} ",     this.Duration);
+            builder.AppendFormat(CultureInfo.InvariantCulture, " \"{0}\" ",    this.OutputFilePath);
+            return builder.ToString();
+        }
+    }
 
 
 
