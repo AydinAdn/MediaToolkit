@@ -353,3 +353,4 @@ MigrationBackup/
 .ionide/
 
 */MediaToolkit.Test/TestVideo/
+*.DotSettings
