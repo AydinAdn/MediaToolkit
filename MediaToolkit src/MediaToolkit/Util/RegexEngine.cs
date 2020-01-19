@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MediaToolkit.Model;
 using System.Globalization;
+using MediaToolkit.Core.Utilities;
 
 namespace MediaToolkit.Util
 {
