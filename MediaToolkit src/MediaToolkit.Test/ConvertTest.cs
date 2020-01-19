@@ -11,7 +11,7 @@ namespace MediaToolkit.Test
     [TestFixture]
     public class ConvertTest
     {
-        [TestFixtureSetUp]
+        [SetUp]
         public void Init()
         {
             // Raise progress events?
