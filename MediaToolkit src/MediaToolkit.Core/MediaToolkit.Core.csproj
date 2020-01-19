@@ -91,7 +91,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandHandler\IHandleCommand.cs" />
+    <Compile Include="CommandHandler\IInstruction.cs" />
+    <Compile Include="MediaToolkit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\IEnumerableExtensions.cs" />
     <Compile Include="Utilities\StringExtensions.cs" />

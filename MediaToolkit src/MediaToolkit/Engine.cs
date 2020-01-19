@@ -5,7 +5,7 @@
     using System.Diagnostics;
     using System.IO;
     using System.Text.RegularExpressions;
-    using MediaToolkit.Core.Utilities;
+
     using MediaToolkit.Model;
     using MediaToolkit.Options;
     using MediaToolkit.Properties;

@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace MediaToolkit.Core.CommandHandler
 {
-    public interface IHandleCommand
+    public interface IInstruction
     {
-        Task<bool> HandleAsync(string command, CancellationToken token = default);
+        string Instruction { get; set; }
     }
 }
