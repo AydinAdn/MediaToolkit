@@ -1,5 +1,4 @@
-﻿using MediaToolkit.Core.CommandHandler;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -7,6 +6,7 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaToolkit.Core.Infrastructure;
 using MediaToolkit.Core.Utilities;
 
 namespace MediaToolkit.Core
@@ -30,8 +30,8 @@ namespace MediaToolkit.Core
 
         public async Task ExecuteInstruction(IInstruction instruction, CancellationToken token)
         {
-            this.EnsureDirectoryExists(this.ffmpegExePath);
-            await this.EnsureFFmpegFileExistsAsync(this.ffmpegExePath);
+            this.CreateDirectoryIfMissing(this.ffmpegExePath);
+            await this.RestoreFFmpegFileIfMissing(this.ffmpegExePath);
 
             // We're creating a temporary copy of the ffmpeg.exe to enable the client the option of processing multiple files concurrently, each process having their own exe.
             // The file is deleted once processing has completed or the application has faulted.
@@ -113,7 +113,7 @@ namespace MediaToolkit.Core
 
         #region Utilities
 
-        private void EnsureDirectoryExists(string directory)
+        private void CreateDirectoryIfMissing(string directory)
         {
             if (directory.IsNullOrWhiteSpace()) throw new ArgumentNullException(nameof(directory));
 
@@ -127,7 +127,7 @@ namespace MediaToolkit.Core
             Directory.CreateDirectory(directoryPath);
         }
 
-        private async Task EnsureFFmpegFileExistsAsync(string ffmpegFilePath)
+        private async Task RestoreFFmpegFileIfMissing(string ffmpegFilePath)
         {
             this.logger.LogInformation("Checking that the specified FFmpeg file exists at {0}", ffmpegFilePath);
             if (!File.Exists(ffmpegFilePath))
@@ -139,23 +139,30 @@ namespace MediaToolkit.Core
 
         private async Task UnpackFFmpegExecutableAsync(string path)
         {
+            const string resourceId = "MediaToolkit.Core.Resources.FFmpeg.exe.gz";
+
+            Assembly currentAssembly= Assembly.GetExecutingAssembly();
+
             this.logger.LogInformation("Locating compressed FFmpeg.exe in embedded resources");
-
-            Stream compressedFFmpegStream = Assembly.GetExecutingAssembly()
-                                                    .GetManifestResourceStream("MediaToolkit.Core.Resources.FFmpeg.exe.gz");
-
-            if (compressedFFmpegStream == null)
+            using (Stream zippedFFmpeg = currentAssembly.GetManifestResourceStream(resourceId))
             {
-                this.logger.LogError("Compressed FFmpeg.exe resource stream is null");
+                if (zippedFFmpeg == null)
+                {
+                    this.logger.LogError("Compressed FFmpeg.exe resource stream is null");
 
-                throw new Exception("FFmpeg GZip stream is null");
-            }
+                    throw new Exception("FFmpeg GZip stream is null");
+                }
 
-            this.logger.LogInformation("Begin decompressing FFmpeg.exe");
-            using (FileStream fileStream = new FileStream(path, FileMode.Create))
-            using (GZipStream compressedStream = new GZipStream(compressedFFmpegStream, CompressionMode.Decompress))
-            {
-                await compressedStream.CopyToAsync(fileStream);
+                this.logger.LogInformation("Zipped FFmpeg.exe found in resources");
+
+
+                this.logger.LogInformation("Begin decompressing FFmpeg.exe.gz");
+
+                using (FileStream fileStream = new FileStream(path, FileMode.Create))
+                using (GZipStream compressedStream = new GZipStream(zippedFFmpeg, CompressionMode.Decompress))
+                {
+                    await compressedStream.CopyToAsync(fileStream);
+                }
             }
 
             this.logger.LogInformation("FFmpeg.exe unpacked to {0}", path);
