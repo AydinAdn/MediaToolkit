@@ -68,13 +68,29 @@ namespace MediaToolkit.Core.Test
         {
             IInstructionBuilder trim = new TrimMediaInstructionBuilder
             {
-                InputFilePath  = this.videoPath,
-                OutputFilePath = Path.ChangeExtension(this.videoPath, "Cut_Video_Test.mp4"),
-                SeekFrom       = TimeSpan.FromSeconds(30),
-                Duration       = TimeSpan.FromSeconds(25)
+                InputFilePath = this.videoPath,
+                OutputFilePath = Path.ChangeExtension(this.videoPath, "Trim_Video_Test.mp4"),
+                SeekFrom = TimeSpan.FromSeconds(30),
+                Duration = TimeSpan.FromSeconds(25)
             };
 
-            await this.toolkit.ExecuteInstruction(trim,  default);
+            await this.toolkit.ExecuteInstruction(trim, default);
+        }
+
+        [Test]
+        public async Task CropVideoInstructionBuilder_Test()
+        {
+            IInstructionBuilder trim = new CropVideoInstructionBuilder
+            {
+                InputFilePath = this.videoPath,
+                OutputFilePath = Path.ChangeExtension(this.videoPath, "Crop_Video_Test.mp4"),
+                X = 100,
+                Y = 100,
+                Width = 50,
+                Height = 50
+            };
+
+            await this.toolkit.ExecuteInstruction(trim, default);
         }
 
     }
@@ -111,14 +127,24 @@ namespace MediaToolkit.Core.Test
 
     #endregion
 
-    public class CropInstructionBuilder : IInstructionBuilder
+    public class CropVideoInstructionBuilder : IInstructionBuilder
     {
-        
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+
+        public string InputFilePath { get; set; }
+        public string OutputFilePath { get; set; }
 
 
         public string BuildInstructions()
         {
-            throw new NotImplementedException();
+            StringBuilder builder = new StringBuilder();
+            builder.AppendFormat(CultureInfo.InvariantCulture, " -i \"{0}\" ", this.InputFilePath);
+            builder.AppendFormat(CultureInfo.InvariantCulture, " -filter:v \"crop={0}:{1}:{2}:{3}\" ", this.Width, this.Height, this.X, this.Y);
+            builder.AppendFormat(CultureInfo.InvariantCulture, " \"{0}\" ", this.OutputFilePath);
+            return builder.ToString();
         }
     }
 
