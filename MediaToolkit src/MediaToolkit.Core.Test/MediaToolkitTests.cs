@@ -13,91 +13,81 @@ namespace MediaToolkit.Core.Test
     [TestFixture]
     public class MediaToolkitTests
     {
-        private static string _testDir = new DirectoryInfo(Directory.GetCurrentDirectory()).Parent.Parent.FullName + "/TestResults";
+        private const string  TestVideoResourceId = "MediaToolkit.Core.Test.Resources.BigBunny.m4v";
+
+        private ILogger<Toolkit> logger;
+        private Toolkit toolkit;
+        private string testDir;
+        private string videoPath;
 
 
-        [Test]
-        public async Task Instantiation()
+
+        [OneTimeSetUp]
+        public async Task Setup()
         {
-            ILoggerFactory factory = LoggerFactory.Create(b =>
+            ILoggerFactory factory = LoggerFactory.Create(config =>
             {
-                b.AddConsole();
-                b.SetMinimumLevel(LogLevel.Trace);
+                config.AddConsole();
+                config.SetMinimumLevel(LogLevel.Trace);
             });
-            ILogger<Toolkit> logger = factory.CreateLogger<Toolkit>();
 
-            Toolkit mediaToolkit = new Toolkit(logger);
+            this.logger = factory.CreateLogger<Toolkit>();
+            this.toolkit = new Toolkit(this.logger);
+            this.testDir = new DirectoryInfo(Directory.GetCurrentDirectory()).Parent?.Parent?.FullName + "/TestResults";
+            this.videoPath = this.testDir + "/BigBunny.m4v";
 
-            await mediaToolkit.ExecuteInstruction(new EmptyInstructionBuilder(), default);
-        }
+            if (File.Exists(this.videoPath))
+            {
+                return;
+            }
 
-        public const string TestVideoResourceId = "MediaToolkit.Core.Test.Resources.BigBunny.m4v";
-        public static string TestDir { get => _testDir; set => _testDir = value; }
-
-
-        [Test]
-        public async Task UseVideo()
-        {
-            Directory.CreateDirectory(TestDir);
-            Console.WriteLine(TestDir);
+            Directory.CreateDirectory(this.testDir);
             Assembly currentAssembly = Assembly.GetExecutingAssembly();
 
-            string videoPath = TestDir + "/BigBunny.m4v";
             using (Stream embeddedVideoStream = currentAssembly.GetManifestResourceStream(TestVideoResourceId))
-            using (FileStream fileStream = new FileStream(videoPath, FileMode.Create,
-                FileAccess.ReadWrite, FileShare.None))
+            using (FileStream fileStream = new FileStream(this.videoPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
             {
                 await embeddedVideoStream.CopyToAsync(fileStream);
             }
 
-            Console.WriteLine(videoPath);
+        }
+
+        [Test]
+        public async Task CustomInstructionBuilder_Test()
+        {
+            IInstructionBuilder custom = new CustomInstructionBuilder
+            {
+                Instruction = $@" -i ""{this.videoPath}"" ""{Path.ChangeExtension(this.videoPath, ".mp4")}"""
+            };
+
+            await this.toolkit.ExecuteInstruction(custom, default);
         }
 
         [Test]
         public async Task TrimMediaInstructionBuilder_Test()
         {
-            Directory.CreateDirectory(TestDir);
-            Console.WriteLine(TestDir);
-            string videoPath = TestDir + "/BigBunny.m4v";
-
-            Assembly currentAssembly = Assembly.GetExecutingAssembly();
-
-            using (Stream embeddedVideoStream = currentAssembly.GetManifestResourceStream(TestVideoResourceId))
-            using (FileStream fileStream = new FileStream(videoPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+            IInstructionBuilder trim = new TrimMediaInstructionBuilder
             {
-                await embeddedVideoStream.CopyToAsync(fileStream);
-            }
+                InputFilePath  = this.videoPath,
+                OutputFilePath = Path.ChangeExtension(this.videoPath, "Cut_Video_Test.mp4"),
+                SeekFrom       = TimeSpan.FromSeconds(30),
+                Duration       = TimeSpan.FromSeconds(25)
+            };
 
-            ILoggerFactory factory = LoggerFactory.Create(b =>
-            {
-                b.AddConsole();
-                b.SetMinimumLevel(LogLevel.Trace);
-            });
-            ILogger<Toolkit> logger = factory.CreateLogger<Toolkit>();
-
-            Toolkit mediaToolkit = new Toolkit(logger);
-
-            await mediaToolkit.ExecuteInstruction(new TrimMediaInstructionBuilder{
-                SeekFrom = TimeSpan.FromSeconds(30),
-                InputFilePath = videoPath,
-                OutputFilePath = Path.ChangeExtension(videoPath, "Cut_Video_Test.mp4"),
-                Duration = TimeSpan.FromSeconds(25)
-            },  default);
+            await this.toolkit.ExecuteInstruction(trim,  default);
         }
 
     }
 
-    public class EmptyInstructionBuilder : IInstructionBuilder
+    // TODO: refactor out of test project
+    #region Completed InstructionBuilders - TODO: Refactoring
+    public class CustomInstructionBuilder : IInstructionBuilder
     {
-        public EmptyInstructionBuilder()
-        {
-            this.Instruction = @"-i ""C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\BigBunny.m4v""  ""C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\Convert_Basic_Test.avi""";
-
-        }
         public string Instruction { get; set; }
+
         public string BuildInstructions()
         {
-            throw new NotImplementedException();
+            return this.Instruction;
         }
     }
 
@@ -119,26 +109,20 @@ namespace MediaToolkit.Core.Test
         }
     }
 
+    #endregion
+
+    public class CropInstructionBuilder : IInstructionBuilder
+    {
+        
 
 
-
+        public string BuildInstructions()
+        {
+            throw new NotImplementedException();
+        }
+    }
 
     //TODO: Reimplement the existing commands implementing IInstruction
-    // CUT VIDEO
-
-    // -nostdin
-    // -y
-    // -loglevel
-    // info
-    // -ss
-    // 30
-    // -i
-    // "C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\BigBunny.m4v"
-    // -t
-    // 00:00:25
-    // "C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\Cut_Video_Test.mp4"
-
-
 
     // CROP VIDEO
 
@@ -238,6 +222,6 @@ namespace MediaToolkit.Core.Test
     // "C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo/Convert_DVD_Test.vob"
 
 
-//    COMPLEX TRANSCODING INSTRUCTIONS
-//    SCALING CONVERSION
+    //    COMPLEX TRANSCODING INSTRUCTIONS
+    //    SCALING CONVERSION
 }

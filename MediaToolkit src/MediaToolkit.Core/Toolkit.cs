@@ -11,7 +11,7 @@ using MediaToolkit.Core.Utilities;
 
 namespace MediaToolkit.Core
 {
-    public class Toolkit : IDisposable
+    public class Toolkit
     {
         readonly ILogger logger;
         private readonly string ffmpegExePath;
@@ -38,9 +38,13 @@ namespace MediaToolkit.Core
             string ffmpegExeCopyPath = this.ChangeFileName(this.ffmpegExePath, Path.GetRandomFileName());
             await this.CopyFileAsync(this.ffmpegExePath, ffmpegExeCopyPath);
 
+            string instructions = instructionBuilder.BuildInstructions();
+
+            this.logger.LogInformation("Executing instructions: {0}", instructions);
+
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                Arguments = "-nostdin -y -loglevel info " + instructionBuilder.BuildInstructions(),
+                Arguments = "-nostdin -y -loglevel info " + instructions,
                 FileName = ffmpegExeCopyPath,
                 CreateNoWindow = true,
                 RedirectStandardInput = false,
@@ -54,8 +58,7 @@ namespace MediaToolkit.Core
             {
                 bool started = ffmpegProcess.Start();
 
-                this.logger.Log(LogLevel.Information, "FFmpeg process started: {0}", started);
-
+                this.logger.LogInformation("FFmpeg process started? {0}", started);
 
                 ffmpegProcess.ErrorDataReceived += (sender, received) =>
                 {
@@ -71,6 +74,7 @@ namespace MediaToolkit.Core
 
                         try
                         {
+                            // ReSharper disable once AccessToDisposedClosure
                             ffmpegProcess.Kill();
                         }
                         catch (InvalidOperationException)
@@ -98,7 +102,7 @@ namespace MediaToolkit.Core
                     }
                 };
 
-                this.logger.LogInformation("Begin reading from ffmpeg console");
+                this.logger.LogInformation("Begin reading stdout from ffmpeg console");
 
                 ffmpegProcess.BeginErrorReadLine();
                 ffmpegProcess.WaitForExit();
@@ -186,42 +190,5 @@ namespace MediaToolkit.Core
         }
 
         #endregion
-
-        #region IDisposable Support
-        private bool isDisposed = false; // To detect redundant calls
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.isDisposed)
-            {
-                if (disposing)
-                {
-                    // TODO: dispose managed state (managed objects).
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
-                this.isDisposed = true;
-            }
-        }
-
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~MediaToolkit()
-        // {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            this.Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
-        }
-        #endregion
-
     }
 }
