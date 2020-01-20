@@ -49,7 +49,6 @@ namespace MediaToolkit.Core.Test
             {
                 await embeddedVideoStream.CopyToAsync(fileStream);
             }
-
         }
 
         [Test]
@@ -93,8 +92,60 @@ namespace MediaToolkit.Core.Test
             await this.toolkit.ExecuteInstruction(trim, default);
         }
 
+        [Test]
+        public async Task ExctractThumbnailInstructionBuilder_Test()
+        {
+            IInstructionBuilder builder = new ExtractThumbnailInstructionBuilder
+            {
+                InputFilePath = this.videoPath,
+                OutputFilePath = Path.ChangeExtension(this.videoPath, "Get_Thumbnail_Test.jpg"),
+                SeekFrom = TimeSpan.FromSeconds(10)
+            };
+
+            await this.toolkit.ExecuteInstruction(builder, default);
+        }
+
+        [Test]
+        public async Task ExctractOnlineThumbnailInstructionBuilder_Test()
+        {
+            IInstructionBuilder builder = new ExtractThumbnailInstructionBuilder
+            {
+                InputFilePath = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
+                OutputFilePath = Path.ChangeExtension(this.videoPath, "Get_Thumbnail_Online_Test.jpg"),
+                SeekFrom = TimeSpan.FromSeconds(10)
+            };
+
+            await this.toolkit.ExecuteInstruction(builder, default);
+        }
+
+        [Test]
+        public async Task BasicInstructionBuilder_Test()
+        {
+            IInstructionBuilder builder = new BasicInstructionBuilder
+            {
+                InputFilePath = this.videoPath,
+                OutputFilePath = Path.ChangeExtension(this.videoPath, "Basic_Conversion_Test.mp4")
+            };
+
+            await this.toolkit.ExecuteInstruction(builder, default);
+        }
+
+        [Test]
+        public async Task ConvertToGifInstructionBuilder_Test()
+        {
+            IInstructionBuilder builder = new ConvertToGifInstructionBuilder()
+            {
+                InputFilePath = this.videoPath,
+                OutputFilePath = Path.ChangeExtension(this.videoPath, "Get_Gif_Test.gif"),
+            };
+
+            await this.toolkit.ExecuteInstruction(builder, default);
+        }
     }
 
+   
+    
+    
     // TODO: refactor out of test project
     #region Completed InstructionBuilders - TODO: Refactoring
     public class CustomInstructionBuilder : IInstructionBuilder
@@ -112,20 +163,18 @@ namespace MediaToolkit.Core.Test
         public string   InputFilePath  { get; set; }
         public string   OutputFilePath { get; set; }
         public TimeSpan Duration       { get; set; }
-        public TimeSpan SeekFrom       { get; set; }
+        public TimeSpan? SeekFrom       { get; set; }
 
         public string BuildInstructions()
         {
             StringBuilder builder = new StringBuilder();
-            builder.AppendFormat(CultureInfo.InvariantCulture, " -ss {0} ",    this.SeekFrom.TotalSeconds);
+            builder.AppendFormat(CultureInfo.InvariantCulture, " -ss {0} ",    this.SeekFrom.GetValueOrDefault(TimeSpan.FromSeconds(1)).TotalSeconds);
             builder.AppendFormat(CultureInfo.InvariantCulture, " -i \"{0}\" ", this.InputFilePath);
             builder.AppendFormat(CultureInfo.InvariantCulture, " -t {0} ",     this.Duration);
             builder.AppendFormat(CultureInfo.InvariantCulture, " \"{0}\" ",    this.OutputFilePath);
             return builder.ToString();
         }
     }
-
-    #endregion
 
     public class CropVideoInstructionBuilder : IInstructionBuilder
     {
@@ -143,59 +192,59 @@ namespace MediaToolkit.Core.Test
             StringBuilder builder = new StringBuilder();
             builder.AppendFormat(CultureInfo.InvariantCulture, " -i \"{0}\" ", this.InputFilePath);
             builder.AppendFormat(CultureInfo.InvariantCulture, " -filter:v \"crop={0}:{1}:{2}:{3}\" ", this.Width, this.Height, this.X, this.Y);
+            builder.AppendFormat(CultureInfo.InvariantCulture, " \"{0}\" ",    this.OutputFilePath);
+            return builder.ToString();
+        }
+    }
+
+    public class ExtractThumbnailInstructionBuilder : IInstructionBuilder
+    {
+        public TimeSpan? SeekFrom { get; set; }
+        public string InputFilePath { get; set; }
+        public string OutputFilePath { get; set; }
+
+        public string BuildInstructions()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendFormat(CultureInfo.InvariantCulture, " -ss {0} ",    this.SeekFrom.GetValueOrDefault(TimeSpan.FromSeconds(1)).TotalSeconds);
+            builder.AppendFormat(CultureInfo.InvariantCulture, " -i \"{0}\" ", this.InputFilePath);
+            builder.AppendFormat(CultureInfo.InvariantCulture, " -vframes {0} ", 1);
+            builder.AppendFormat(CultureInfo.InvariantCulture, " \"{0}\" ",    this.OutputFilePath);
+            return builder.ToString();
+        }
+    }
+
+    public class BasicInstructionBuilder : IInstructionBuilder
+    {
+        public string InputFilePath { get; set; }
+        public string OutputFilePath { get; set; }
+
+        public string BuildInstructions()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendFormat(CultureInfo.InvariantCulture, " -i \"{0}\" ", this.InputFilePath);
             builder.AppendFormat(CultureInfo.InvariantCulture, " \"{0}\" ", this.OutputFilePath);
             return builder.ToString();
         }
     }
 
+    public class ConvertToGifInstructionBuilder : IInstructionBuilder
+    {
+        public string InputFilePath { get; set; }
+        public string OutputFilePath { get; set; }
+
+        public string BuildInstructions()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendFormat(CultureInfo.InvariantCulture, " -i \"{0}\" ", this.InputFilePath);
+            builder.AppendFormat(CultureInfo.InvariantCulture, " \"{0}\" ", this.OutputFilePath);
+            return builder.ToString();
+        }
+    }
+    #endregion
+
+
     //TODO: Reimplement the existing commands implementing IInstruction
-
-    // CROP VIDEO
-
-    // -nostdin
-    // -y
-    // -loglevel
-    // info
-    // -i
-    // "C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\BigBunny.m4v"
-    // -filter:v
-    // "crop=50:50:100:100"
-    // "C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\Crop_Video_Test.mp4"
-
-
-
-
-    // GET THUMBNAIL
-
-    // -nostdin
-    // y
-    // loglevel
-    // nfo
-    // -ss
-    // 6.51
-    // -i
-    // C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\BigBunny.m4v"
-    // -vframes	
-    // "C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\Get_Thumbnail_Test.jpg"
-
-
-
-
-    // GET THUMBNAIL HTTP
-
-    // -nostdin
-    // -y
-    // -loglevel
-    // info
-    // -ss
-    // 30.05
-    // -i
-    // "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"
-    // -vframes
-    // 1
-    // "C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\Get_Thumbnail_FromHTTP_Test.jpg"
-    // 
-
 
 
     // GET METADATA
@@ -206,31 +255,6 @@ namespace MediaToolkit.Core.Test
     // info
     // -i
     // "C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\BigBunny.m4v"
-
-
-
-    // BASIC CONVERSION
-
-    // -nostdin
-    // -y
-    // -loglevel
-    // info
-    // -i
-    // "C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\BigBunny.m4v"
-    // "C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\Convert_Basic_Test.avi"
-
-
-
-
-    // GIF CONVERSION
-
-    // -nostdin
-    // -y
-    // -loglevel
-    // info
-    // -i
-    // "C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\BigBunny.m4v"
-    // "C:\Users\Aydin\source\repos\AydinAdn\MediaToolkit\MediaToolkit src\MediaToolkit.Test\TestVideo\Convert_GIF_Test.gif"
 
 
 
