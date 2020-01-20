@@ -101,9 +101,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\FFmpeg.exe.gz" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Logging\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config">

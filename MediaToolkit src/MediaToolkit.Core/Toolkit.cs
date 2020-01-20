@@ -15,6 +15,7 @@ namespace MediaToolkit.Core
     {
         readonly ILogger logger;
         private readonly string ffmpegExePath;
+        private long isInitialized = 0;
 
         public Toolkit(ILogger logger) : this(logger, Directory.GetCurrentDirectory() + @"/MediaToolkit/ffmpeg.exe")
         {
@@ -30,11 +31,16 @@ namespace MediaToolkit.Core
 
         public async Task ExecuteInstruction(IInstructionBuilder instructionBuilder, CancellationToken token)
         {
-            this.CreateDirectoryIfMissing(this.ffmpegExePath);
-            await this.RestoreFFmpegFileIfMissing(this.ffmpegExePath);
+            if (Interlocked.Read(ref this.isInitialized) == 0)
+            {
+                this.CreateDirectoryIfMissing(this.ffmpegExePath);
+                await this.RestoreFFmpegFileIfMissing(this.ffmpegExePath);
+                Interlocked.Increment(ref this.isInitialized);
+            }
 
-            // We're creating a temporary copy of the ffmpeg.exe to enable the client the option of processing multiple files concurrently, each process having their own exe.
-            // The file is deleted once processing has completed or the application has faulted.
+            // We're creating a temporary copy of the ffmpeg.exe to enable the client the option of processing 
+            // multiple files concurrently, each process having their own exe.
+            // The copy is deleted once processing has completed or the application has faulted.
             string ffmpegExeCopyPath = this.ChangeFileName(this.ffmpegExePath, Path.GetRandomFileName());
             await this.CopyFileAsync(this.ffmpegExePath, ffmpegExeCopyPath);
 
