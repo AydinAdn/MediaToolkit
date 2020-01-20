@@ -28,7 +28,7 @@ namespace MediaToolkit.Core.Test
             ILoggerFactory factory = LoggerFactory.Create(config =>
             {
                 config.AddConsole();
-                config.SetMinimumLevel(LogLevel.Information);
+                config.SetMinimumLevel(LogLevel.Trace);
             });
 
             this.logger    = factory.CreateLogger<Toolkit>();
