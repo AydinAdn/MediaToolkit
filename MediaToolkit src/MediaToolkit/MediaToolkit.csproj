@@ -17,10 +17,15 @@
     <UpdateAssemblyVersion>True</UpdateAssemblyVersion>
     <UpdateAssemblyFileVersion>True</UpdateAssemblyFileVersion>
     <UpdateAssemblyInfoVersion>True</UpdateAssemblyInfoVersion>
-    <AssemblyVersionSettings>None.None.IncrementOnDemand.IncrementOnDemandWithReset</AssemblyVersionSettings>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <AssemblyFileVersionSettings>None.None.IncrementOnDemand.IncrementOnDemandWithReset</AssemblyFileVersionSettings>
-    <AssemblyInfoVersionSettings>None.None.IncrementOnDemand.IncrementOnDemandWithReset</AssemblyInfoVersionSettings>
+    <AssemblyVersionSettings>None.None.IncrementWithResetOnIncrease.HalfOfSecondsSinceMidnight</AssemblyVersionSettings>
+    <AssemblyVersion>1.1.2.2634</AssemblyVersion>
+    <AssemblyFileVersionSettings>None.None.IncrementWithResetOnIncrease.HalfOfSecondsSinceMidnight</AssemblyFileVersionSettings>
+    <AssemblyInfoVersionSettings>None.None.IncrementWithResetOnIncrease.HalfOfSecondsSinceMidnight</AssemblyInfoVersionSettings>
+    <ShouldCreateLogs>True</ShouldCreateLogs>
+    <AdvancedSettingsExpanded>True</AdvancedSettingsExpanded>
+    <UpdatePackageVersion>False</UpdatePackageVersion>
+    <AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
+    <InheritWinAppVersionFrom>None</InheritWinAppVersionFrom>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

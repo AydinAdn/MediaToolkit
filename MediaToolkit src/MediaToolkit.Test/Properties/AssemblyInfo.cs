@@ -9,11 +9,13 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyCompany("Aydin")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyDescription("Test project for MediaToolkit")]
-[assembly: AssemblyFileVersion("1.0.1.0")]
 [assembly: AssemblyProduct("MediaToolkit.Test")]
-[assembly: AssemblyTitle("MediaToolkit.Test")]
-[assembly: AssemblyVersion("1.0.1.0")]
+[assembly: AssemblyVersion("1.0.3.2634")]
 [assembly: ComVisible(false)]
 [assembly: Guid("58e89b54-3249-494e-b3bd-2b12dac4c1c8")]
+
+[assembly: AssemblyTitle("MediaToolkit.Test")]
+[assembly: AssemblyFileVersion("1.0.3.2634")]
+[assembly: AssemblyInformationalVersion("1.0.2.2634")]

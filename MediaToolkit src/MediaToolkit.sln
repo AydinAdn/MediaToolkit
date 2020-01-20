@@ -49,6 +49,18 @@ Global
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D0A1E91A-3B25-4379-B412-34A5A1FA8129}
 	EndGlobalSection
+	GlobalSection(AutomaticVersions) = postSolution
+		UpdateAssemblyVersion = True
+		UpdateAssemblyFileVersion = True
+		UpdateAssemblyInfoVersion = True
+		AdvancedSettingsExpanded = True
+		AssemblyVersionSettings = None.None.IncrementWithResetOnIncrease.HalfOfSecondsSinceMidnight
+		AssemblyFileVersionSettings = None.None.IncrementWithResetOnIncrease.HalfOfSecondsSinceMidnight
+		AssemblyInfoVersionSettings = None.None.IncrementWithResetOnIncrease.HalfOfSecondsSinceMidnight
+		UpdatePackageVersion = False
+		AssemblyInfoVersionType = SettingsVersion
+		InheritWinAppVersionFrom = None
+	EndGlobalSection
 	GlobalSection(CodealikeProperties) = postSolution
 		SolutionGuid = 27b6e555-e1d3-4bc8-80b8-643a861a9917
 	EndGlobalSection
