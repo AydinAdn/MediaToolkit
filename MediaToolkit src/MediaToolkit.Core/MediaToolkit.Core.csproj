@@ -94,6 +94,10 @@
   <ItemGroup>
     <Compile Include="Events\ProgressUpdateEventArgs.cs" />
     <Compile Include="Events\WarningEventArgs.cs" />
+    <Compile Include="Infrastructure\BasicInstructionBuilder.cs" />
+    <Compile Include="Infrastructure\CropVideoInstructionBuilder.cs" />
+    <Compile Include="Infrastructure\CustomInstructionBuilder.cs" />
+    <Compile Include="Infrastructure\ExtractThumbnailInstructionBuilder.cs" />
     <Compile Include="Infrastructure\IInstructionBuilder.cs" />
     <Compile Include="Toolkit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

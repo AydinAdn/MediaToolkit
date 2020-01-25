@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using System.Threading.Tasks;
@@ -163,7 +161,7 @@ namespace MediaToolkit.Core.Test
         [Test]
         public async Task ConvertToGif_InstructionBuilder_Test()
         {
-            IInstructionBuilder builder = new ConvertToGifInstructionBuilder()
+            IInstructionBuilder builder = new BasicInstructionBuilder
             {
                 InputFilePath = this.videoPath,
                 OutputFilePath = Path.ChangeExtension(this.videoPath, "Get_Gif_Test.gif"),
@@ -246,91 +244,6 @@ namespace MediaToolkit.Core.Test
 
     // TODO: refactor out of test project
     #region Completed InstructionBuilders - TODO: Refactoring
-
-    public class CustomInstructionBuilder : IInstructionBuilder
-    {
-        public string Instruction { get; set; }
-
-        public string BuildInstructions()
-        {
-            return this.Instruction;
-        }
-    }
-
-    public class TrimMediaInstructionBuilder : IInstructionBuilder
-    {
-        public string   InputFilePath  { get; set; }
-        public string   OutputFilePath { get; set; }
-        public TimeSpan Duration       { get; set; }
-        public TimeSpan? SeekFrom       { get; set; }
-
-        public string BuildInstructions()
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.AppendFormat(CultureInfo.InvariantCulture, " -ss {0} ",    this.SeekFrom.GetValueOrDefault(TimeSpan.FromSeconds(1)).TotalSeconds);
-            builder.AppendFormat(CultureInfo.InvariantCulture, " -i \"{0}\" ", this.InputFilePath);
-            builder.AppendFormat(CultureInfo.InvariantCulture, " -t {0} ",     this.Duration);
-            builder.AppendFormat(CultureInfo.InvariantCulture, " \"{0}\" ",    this.OutputFilePath);
-            return builder.ToString();
-        }
-    }
-
-    public class CropVideoInstructionBuilder : IInstructionBuilder
-    {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public string InputFilePath { get; set; }
-        public string OutputFilePath { get; set; }
-
-
-        public string BuildInstructions()
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.AppendFormat(CultureInfo.InvariantCulture, " -i \"{0}\" ", this.InputFilePath);
-            builder.AppendFormat(CultureInfo.InvariantCulture, " -filter:v \"crop={0}:{1}:{2}:{3}\" ", this.Width, this.Height, this.X, this.Y);
-            builder.AppendFormat(CultureInfo.InvariantCulture, " \"{0}\" ",    this.OutputFilePath);
-            return builder.ToString();
-        }
-    }
-
-    public class ExtractThumbnailInstructionBuilder : IInstructionBuilder
-    {
-        public TimeSpan? SeekFrom { get; set; }
-        public string InputFilePath { get; set; }
-        public string OutputFilePath { get; set; }
-        public int Frames { get; set; } = 1;
-
-        public string BuildInstructions()
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.AppendFormat(CultureInfo.InvariantCulture, " -ss {0} ",    this.SeekFrom.GetValueOrDefault(TimeSpan.FromSeconds(1)).TotalSeconds);
-            builder.AppendFormat(CultureInfo.InvariantCulture, " -i \"{0}\" ", this.InputFilePath);
-            builder.AppendFormat(CultureInfo.InvariantCulture, " -vframes {0} ", this.Frames);
-            builder.AppendFormat(CultureInfo.InvariantCulture, " \"{0}\" ",    this.OutputFilePath);
-            return builder.ToString();
-        }
-    }
-
-    public class BasicInstructionBuilder : IInstructionBuilder
-    {
-        public string InputFilePath { get; set; }
-        public string OutputFilePath { get; set; }
-
-        public string BuildInstructions()
-        {
-            StringBuilder builder = new StringBuilder();
-            builder.AppendFormat(CultureInfo.InvariantCulture, " -i \"{0}\" ", this.InputFilePath);
-            builder.AppendFormat(CultureInfo.InvariantCulture, " \"{0}\" ", this.OutputFilePath);
-            return builder.ToString();
-        }
-    }
-
-    public class ConvertToGifInstructionBuilder : BasicInstructionBuilder
-    {
-    }
-
 
     #endregion
 
