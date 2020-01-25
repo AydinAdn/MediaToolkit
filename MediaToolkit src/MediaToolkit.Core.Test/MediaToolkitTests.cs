@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -36,6 +37,24 @@ namespace MediaToolkit.Core.Test
             this.testDir   = new DirectoryInfo(Directory.GetCurrentDirectory()).Parent?.Parent?.FullName + "/TestResults";
             this.videoPath = this.testDir + "/BigBunny.m4v";
 
+            this.toolkit.OnWarningEventHandler += (sender, args) =>
+            {
+                Console.WriteLine($"### Warning > {args.Warning}");
+            };
+
+            this.toolkit.OnProgressUpdateEventHandler += (sender, args) =>
+            {
+                var max = args.UpdateData.Max(x => x.Key.Length) + 1;
+                var updateData = args.UpdateData.Select(x => $"{x.Key.PadRight(max)}={x.Value}");
+                var updateDataString = string.Join("\n", updateData);
+                Console.WriteLine("### Progress Update\n" + updateDataString+"\n");
+            };
+
+            this.toolkit.OnCompleteEventHandler += (sender, args) =>
+            {
+                Console.WriteLine("### Complete");
+            };
+
             if (File.Exists(this.videoPath))
             {
                 return;
@@ -50,7 +69,11 @@ namespace MediaToolkit.Core.Test
                 // ReSharper disable once PossibleNullReferenceException
                 await embeddedVideoStream.CopyToAsync(fileStream);
             }
+
+            
         }
+
+        #region InstructionBuilder Tests
 
         [Test]
         public async Task Custom_InstructionBuilder_Test()
@@ -70,7 +93,7 @@ namespace MediaToolkit.Core.Test
             {
                 InputFilePath = this.videoPath,
                 OutputFilePath = Path.ChangeExtension(this.videoPath, "Trim_Video_Test.mp4"),
-                SeekFrom = TimeSpan.FromSeconds(30),
+                SeekFrom = TimeSpan.FromSeconds(5),
                 Duration = TimeSpan.FromSeconds(25)
             };
 
@@ -149,7 +172,6 @@ namespace MediaToolkit.Core.Test
             await this.toolkit.ExecuteInstruction(builder, default);
         }
 
-
         /// <summary>
         ///     HEADS UP! runs a 100 concurrent threads, it 
         ///     will max out your resources for a few minutes.
@@ -214,11 +236,12 @@ namespace MediaToolkit.Core.Test
             {
                 File.Delete(Path.ChangeExtension(this.videoPath, "Basic_Conversion_Test" + i + ".mp4"));
             }
+
+            limiter.Dispose();
         }
 
+        #endregion
 
-
-        
     }
 
     // TODO: refactor out of test project
@@ -277,13 +300,14 @@ namespace MediaToolkit.Core.Test
         public TimeSpan? SeekFrom { get; set; }
         public string InputFilePath { get; set; }
         public string OutputFilePath { get; set; }
+        public int Frames { get; set; } = 1;
 
         public string BuildInstructions()
         {
             StringBuilder builder = new StringBuilder();
             builder.AppendFormat(CultureInfo.InvariantCulture, " -ss {0} ",    this.SeekFrom.GetValueOrDefault(TimeSpan.FromSeconds(1)).TotalSeconds);
             builder.AppendFormat(CultureInfo.InvariantCulture, " -i \"{0}\" ", this.InputFilePath);
-            builder.AppendFormat(CultureInfo.InvariantCulture, " -vframes {0} ", 1);
+            builder.AppendFormat(CultureInfo.InvariantCulture, " -vframes {0} ", this.Frames);
             builder.AppendFormat(CultureInfo.InvariantCulture, " \"{0}\" ",    this.OutputFilePath);
             return builder.ToString();
         }

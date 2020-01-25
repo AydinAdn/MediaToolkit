@@ -8,6 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediaToolkit.Core.Infrastructure;
 using MediaToolkit.Core.Utilities;
+using System.Collections.Generic;
+using System.Linq;
+using MediaToolkit.Core.Events;
 
 namespace MediaToolkit.Core
 {
@@ -16,6 +19,11 @@ namespace MediaToolkit.Core
         readonly ILogger logger;
         private readonly string ffmpegExePath;
         private long isInitialized = 0;
+
+        public EventHandler<ProgressUpdateEventArgs> OnProgressUpdateEventHandler;
+        public EventHandler<WarningEventArgs> OnWarningEventHandler;
+        public EventHandler OnCompleteEventHandler;
+
 
         public Toolkit(ILogger logger) : this(logger, Directory.GetCurrentDirectory() + @"/MediaToolkit/ffmpeg.exe")
         {
@@ -50,7 +58,7 @@ namespace MediaToolkit.Core
 
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                Arguments = "-nostdin -y -loglevel info " + instructions,
+                Arguments = "-nostdin -progress pipe:2 -y -loglevel warning " + instructions,
                 FileName = ffmpegExeCopyPath,
                 CreateNoWindow = true,
                 RedirectStandardInput = false,
@@ -66,6 +74,8 @@ namespace MediaToolkit.Core
 
                 this.logger.LogInformation("FFmpeg process started? {0}", started);
 
+                Dictionary<string, string> progressValues = new Dictionary<string, string>();
+
                 ffmpegProcess.ErrorDataReceived += (sender, received) =>
                 {
                     if (received.Data == null) return;
@@ -73,6 +83,42 @@ namespace MediaToolkit.Core
                     try
                     {
                         this.logger.LogTrace(received.Data);
+
+                        if (!received.Data.Contains("="))
+                        {
+                            this.OnWarningEventHandler?.Invoke(this, new WarningEventArgs(received.Data));
+
+                            return;
+                        }
+
+                        string[] progressValue = received.Data.Trim()
+                                                              .Split('=')
+                                                              .Select(x=>x.Trim())
+                                                              .ToArray();
+
+                        if (progressValue[0] == "progress")
+                        {
+                            ProgressUpdateEventArgs updateEventArgs = new ProgressUpdateEventArgs(progressValues);
+                            this.OnProgressUpdateEventHandler?.Invoke(this, updateEventArgs);
+
+                            switch (progressValue[1])
+                            {
+                                case "continue":
+                                    progressValues.Clear();
+                                    return;
+
+                                case "end":
+                                    this.OnCompleteEventHandler.Invoke(this, EventArgs.Empty);
+
+                                    return;
+                                default:
+                                    throw new Exception(received.Data);
+                            }
+                        }
+
+                        progressValues.Add(progressValue[0], progressValue[1]);
+
+
 
                         if (!token.IsCancellationRequested) return;
 
@@ -108,7 +154,7 @@ namespace MediaToolkit.Core
                     }
                 };
 
-                this.logger.LogInformation("Begin reading stdout from ffmpeg console");
+                this.logger.LogInformation("Begin reading stderr from ffmpeg console");
 
                 ffmpegProcess.BeginErrorReadLine();
                 ffmpegProcess.WaitForExit();
@@ -140,11 +186,11 @@ namespace MediaToolkit.Core
         private async Task RestoreFFmpegFileIfMissing(string ffmpegFilePath)
         {
             this.logger.LogInformation("Checking that the specified FFmpeg file exists at {0}", ffmpegFilePath);
-            if (!File.Exists(ffmpegFilePath))
-            {
+            //if (!File.Exists(ffmpegFilePath))
+            //{
                 this.logger.LogInformation("FFmpeg file not found. Unpacking embedded FFmpeg.exe to {0}", ffmpegFilePath);
                 await this.UnpackFFmpegExecutableAsync(ffmpegFilePath);
-            }
+            //}
         }
 
         private async Task UnpackFFmpegExecutableAsync(string path)
