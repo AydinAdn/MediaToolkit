@@ -9,6 +9,6 @@ namespace MediaToolkit.Core.Events
             this.Warning = warning;
         }
 
-        public string Warning { get; set; }
+        public string Warning { get; }
     }
 }

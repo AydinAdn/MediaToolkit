@@ -62,6 +62,9 @@
     <Reference Include="Microsoft.Extensions.Primitives, Version=3.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Primitives.3.1.1\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
@@ -92,16 +95,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\MetadataEventArgs.cs" />
     <Compile Include="Events\ProgressUpdateEventArgs.cs" />
+    <Compile Include="Events\RawDataReceivedEventArgs.cs" />
     <Compile Include="Events\WarningEventArgs.cs" />
     <Compile Include="Infrastructure\BasicInstructionBuilder.cs" />
     <Compile Include="Infrastructure\CropVideoInstructionBuilder.cs" />
     <Compile Include="Infrastructure\CustomInstructionBuilder.cs" />
     <Compile Include="Infrastructure\ExtractThumbnailInstructionBuilder.cs" />
+    <Compile Include="Infrastructure\GetMetadataInstructionBuilder.cs" />
     <Compile Include="Infrastructure\IInstructionBuilder.cs" />
-    <Compile Include="Toolkit.cs" />
+    <Compile Include="Infrastructure\TrimMediaInstructionBuilder.cs" />
+    <Compile Include="Meta\Disposition.cs" />
+    <Compile Include="Meta\Format.cs" />
+    <Compile Include="Meta\FormatTags.cs" />
+    <Compile Include="Meta\MediaStream.cs" />
+    <Compile Include="Meta\Metadata.cs" />
+    <Compile Include="Meta\StreamTags.cs" />
+    <Compile Include="Services\FFmpegServiceConfiguration.cs" />
+    <Compile Include="Services\IProcessServiceConfiguration.cs" />
+    <Compile Include="Services\MediaConverterService.cs" />
+    <Compile Include="Services\MetadataService.cs" />
+    <Compile Include="Services\ProcessService.cs" />
+    <Compile Include="Services\IProcessService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utilities\IEnumerableExtensions.cs" />
+    <Compile Include="Utilities\EnumerableExtensions.cs" />
+    <Compile Include="Utilities\IOUtilities.cs" />
     <Compile Include="Utilities\StringExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -113,6 +132,7 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <EmbeddedResource Include="Resources\FFprobe.exe.gz" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.DependencyValidation.Analyzers.0.10.0\analyzers\dotnet\cs\Microsoft.DependencyValidation.Analyzers.resources.dll" />
