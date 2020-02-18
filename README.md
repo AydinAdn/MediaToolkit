@@ -1,3 +1,21 @@
+Update 19/Feb/2020
+======
+
+There's breaking changes on the way, when MediaToolkit was initially developed it was meant to act as facade over the FFmpeg library, providing a simplified interface to perform the most basic tasks of converting media. 
+
+Since then, there's been demands for new features, demands for updates of the original FFmpeg executables, demands for custom code executions and with each new feature the original code base has been getting more bloated and difficult to maintain, the Engine class has turned into a god class essentially and there's no easy way for clients to plugin their own arguments without modifying the original code base, the new update aims to resolve all of that.
+
+Changes going forwards:
+
+- Conversion methods have been extracted out into separate classes deriving from `IInstructionBuilder`, so whether if you want to crop a video you would use the `CropVideoInstructionBuilder`, if you wanted to extract a thumbnail, `ExtractThumbnailInstructionBuilder`, etc. You can also obviously implement your own instructions as long as it implements `IInstructionBuilder`.
+- Added logging functionality to log traces of the raw output received by the FFmpeg process.
+- Added `FFprobe` for querying the Metadata of media files.
+- `MediaFile` classes will no longer be used, the reason for this change is because it relies on FFmpeg for querying metadata and it's difficult to make it work reliably across different types of files as the output from FFmpeg is difficult to parse and it doesn't really expose all that much information anyway. What's recommended is using `FFprobe` instead.
+
+You can track its progress in the [MajorRefactoring](https://github.com/AydinAdn/MediaToolkit/tree/MajorRefactoring) branch. 
+You're welcome to get involved, if you see opportunities to break dependencies without adding great deals of complexity, let me know.
+
+
 MediaToolkit
 ============
 
