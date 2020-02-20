@@ -17,6 +17,10 @@ namespace MediaToolkit
         }
 
         /// -------------------------------------------------------------------------------------------------
+        /// <summary>   Indicates whether we will be returning from stdout. </summary>
+        /// <value> True if returning from stdout, false otherwise. </value>
+        internal bool ReturningStandardOutput { get; set; }
+        /// -------------------------------------------------------------------------------------------------
         /// <summary>   Gets or sets options for controlling the conversion. </summary>
         /// <value> Options that control the conversion. </value>
         internal ConversionOptions ConversionOptions { get; set; }
