@@ -4,6 +4,7 @@ using MediaToolkit.Util;
 using System;
 using System.Globalization;
 using System.Text;
+using System.IO;
 
 namespace MediaToolkit
 {
@@ -21,6 +22,8 @@ namespace MediaToolkit
 
                 case FFmpegTask.GetThumbnail:
                     return GetThumbnail(engineParameters.InputFile, engineParameters.OutputFile, engineParameters.ConversionOptions);
+                case FFmpegTask.ExtractFrames:
+                    return ExtractFrames(engineParameters.InputFile);
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -41,6 +44,16 @@ namespace MediaToolkit
             commandBuilder.AppendFormat(" -vframes {0} ", 1);
 
             return commandBuilder.AppendFormat(" \"{0}\" ", outputFile.Filename).ToString();
+        }
+        
+        private static string ExtractFrames(MediaFile inputFile)
+        {
+            var commandBuilder = new StringBuilder();
+
+            commandBuilder.AppendFormat(" -i \"{0}\" ", inputFile.Filename);
+
+            return commandBuilder.AppendFormat(@" -r 1/1 " + Path.GetDirectoryName(inputFile.Filename) + "\\" + "frame%05d.jpg ").ToString();
+
         }
 
         private static string Convert(MediaFile inputFile, MediaFile outputFile, ConversionOptions conversionOptions)
@@ -79,6 +92,10 @@ namespace MediaToolkit
             // Audio sample rate
             if (conversionOptions.AudioSampleRate != AudioSampleRate.Default)
                 commandBuilder.AppendFormat(" -ar {0} ", conversionOptions.AudioSampleRate.Remove("Hz"));
+            
+            //Audio downmix
+            if (conversionOptions.AudioDownmix)
+                commandBuilder.AppendFormat(" -ac 1 ");
 
             // Maximum video duration
             if (conversionOptions.MaxVideoDuration != null)

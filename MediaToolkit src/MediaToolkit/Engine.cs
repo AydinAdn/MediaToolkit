@@ -119,6 +119,20 @@
             this.FFmpegEngine(engineParams);
         }
         
+         /// -------------------------------------------------------------------------------------------------
+        /// <summary>   Extracts all frames from a video. </summary>
+        /// <param name="inputFile">    Video file. </param>
+        public void ExtractFrames(MediaFile inputFile)
+        {
+            EngineParameters engineParams = new EngineParameters
+            {
+                InputFile = inputFile,
+                Task = FFmpegTask.ExtractFrames
+            };
+
+            this.FFmpegEngine(engineParams);
+        }
+        
         #region Private method - Helpers
 
         private void FFmpegEngine(EngineParameters engineParameters)
