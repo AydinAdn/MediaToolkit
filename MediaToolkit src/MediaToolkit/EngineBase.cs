@@ -18,20 +18,30 @@
         /// <summary>   Used for locking the FFmpeg process to one thread. </summary>
         private const string LockName = "MediaToolkit.Engine.LockName";
 
-        private const string DefaultFFmpegFilePath = @"/MediaToolkit/ffmpeg.exe";
+        /// <summary>
+        /// Path to the ffmpeg executable
+        /// </summary>
+        private string DefaultFFmpegFilePath => Path.Combine(Path.GetTempPath(), "MediaToolkit/" + Guid.NewGuid().ToString() + "/ffmpeg.exe");
+
+        private bool DeleteExeOnExit;
 
         /// <summary>   Full pathname of the FFmpeg file. </summary>
         protected readonly string FFmpegFilePath;
 
         /// <summary>   The Mutex. </summary>
+        /// <remarks>Null if concurrently running FFmpeg instances are allowed.</remarks>
         protected readonly Mutex Mutex;
 
-        /// <summary>   The ffmpeg process. </summary>
-        protected Process FFmpegProcess;
+        private object _fileExistLock = new object();
 
 
-         protected EngineBase()
-            : this(ConfigurationManager.AppSettings["mediaToolkit.ffmpeg.path"])
+        protected EngineBase()
+           : this(ConfigurationManager.AppSettings["mediaToolkit.ffmpeg.path"])
+        {
+        }
+
+        protected EngineBase(bool enableMultipleRunningProcesses)
+            : this(ConfigurationManager.AppSettings["mediaToolkit.ffmpeg.path"], enableMultipleRunningProcesses)
         {
         }
 
@@ -40,21 +50,40 @@
         ///     <para> Initializes FFmpeg.exe; Ensuring that there is a copy</para>
         ///     <para> in the clients temp folder &amp; isn't in use by another process.</para>
         /// </summary>
-        protected EngineBase(string ffMpegPath)
+        protected EngineBase(string ffMpegPath) : this(ffMpegPath, false)
         {
-            this.Mutex = new Mutex(false, LockName);
+        }
+
+        ///-------------------------------------------------------------------------------------------------
+        /// <summary>
+        ///     <para> Initializes FFmpeg.exe; Ensuring that there is a copy</para>
+        ///     <para> in the clients temp folder &amp; isn't in use by another process.</para>
+        /// </summary>
+        /// <param name="enableMultipleRunningProcesses">Whether or not to allow multiple instances of FFmpeg to run concurrently.</param>
+        protected EngineBase(string ffMpegPath, bool enableMultipleRunningProcesses)
+        {
+            if (!enableMultipleRunningProcesses)
+            {
+                this.Mutex = new Mutex(false, LockName);
+            }
+
             this.isDisposed = false;
 
             if (ffMpegPath.IsNullOrWhiteSpace())
             {
                 ffMpegPath = DefaultFFmpegFilePath;
+                DeleteExeOnExit = true;
             }
 
             this.FFmpegFilePath = ffMpegPath;
 
-            this.EnsureDirectoryExists ();
+            this.EnsureDirectoryExists();
             this.EnsureFFmpegFileExists();
-            this.EnsureFFmpegIsNotUsed ();
+
+            if (!enableMultipleRunningProcesses)
+            {
+                this.EnsureFFmpegIsNotUsed();
+            }
         }
 
         private void EnsureFFmpegIsNotUsed()
@@ -89,7 +118,13 @@
         {
             if (!File.Exists(this.FFmpegFilePath))
             {
-                UnpackFFmpegExecutable(this.FFmpegFilePath);
+                lock (_fileExistLock)
+                {
+                    if (!File.Exists(this.FFmpegFilePath)) // Check again in case another thread got this far and created the file
+                    {
+                        UnpackFFmpegExecutable(this.FFmpegFilePath);
+                    }
+                }
             }
         }
 
@@ -133,11 +168,12 @@
                 return;
             }
 
-            if(FFmpegProcess != null)
+            // Clean up temporary file
+            if (DeleteExeOnExit)
             {
-                this.FFmpegProcess.Dispose();
-            }            
-            this.FFmpegProcess = null;
+                File.Delete(FFmpegFilePath);
+            }
+
             this.isDisposed = true;
         }
     }
