@@ -61,10 +61,10 @@ Samples
 
 - [Retrieve metadata](#retrieve-metadata)  
 - [Perform basic video conversions](#basic-conversion)  
-- [Grab thumbnail] (#grab-thumbnail-from-a-video)
+- [Grab thumbnail](#grab-thumbnail-from-a-video)
 - [Convert from FLV to DVD](#convert-flash-video-to-dvd)  
 - [Convert FLV to MP4 using various transcoding options](#transcoding-options-flv-to-mp4)  
-- [Cut / split video] (#cut-video-down-to-smaller-length)
+- [Cut / split video](#cut-video-down-to-smaller-length)
 - [Subscribing to events](#subscribe-to-events)
 
 ### Grab thumbnail from a video
