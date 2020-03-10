@@ -37,5 +37,10 @@ namespace MediaToolkit
         /// <summary>   Gets or sets the task. </summary>
         /// <value> The task. </value>
         internal FFmpegTask Task { get; set; }
+        
+        /// -------------------------------------------------------------------------------------------------
+        /// <summary>   Gets or sets the framerate in the FramesToVideo function. </summary>
+        /// <value> The framespersecond. </value>
+        internal int fps { get; set; }
     }
 }

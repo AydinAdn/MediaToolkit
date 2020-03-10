@@ -11,6 +11,12 @@ namespace MediaToolkit
         GetMetaData,
 
         /// <summary>   An enum constant representing the get thumbnail option. </summary>
-        GetThumbnail
+        GetThumbnail,
+        
+        /// <summary>   An enum constant representing the extract frames option. </summary>
+        ExtractFrames,
+        
+        /// <summary>   An enum constant representing the convertion of frames to video option. </summary>
+        FramesToVideo
     }
 }

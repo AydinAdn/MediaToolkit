@@ -119,11 +119,43 @@
             this.FFmpegEngine(engineParams);
         }
         
+         /// -------------------------------------------------------------------------------------------------
+        /// <summary>   Extracts all frames from a video. </summary>
+        /// <param name="inputFile">    Video file. </param>
+        public void ExtractFrames(MediaFile inputFile)
+        {
+            EngineParameters engineParams = new EngineParameters
+            {
+                InputFile = inputFile,
+                Task = FFmpegTask.ExtractFrames
+            };
+
+            this.FFmpegEngine(engineParams);
+        }
+        
+         /// -------------------------------------------------------------------------------------------------
+        /// <summary>   Converts images to a video. </summary>
+        /// <param name="inputFile">    Input image files. Must have the format "filename"%XXd.jpg/bmp. For example if there are mutiple jpgs in the directory named frame0001.jpg,frame0002.jpg, input would be "frame%04d.jpg. </param>
+        /// <param name="ouputFile">    Output video file. </param>
+        /// <param name="fps">    Frame rate of output video file. </param>
+        public void FramesToVideo(MediaFile inputFile, MediaFile outputFile, int fps)
+        {
+            EngineParameters engineParams = new EngineParameters
+            {
+                InputFile = inputFile,
+                OutputFile = outputFile,
+                fps = fps,
+                Task = FFmpegTask.FramesToVideo
+            };
+
+            this.FFmpegEngine(engineParams);
+        }
+        
         #region Private method - Helpers
 
         private void FFmpegEngine(EngineParameters engineParameters)
         {
-            if (!engineParameters.InputFile.Filename.StartsWith("http://") && !File.Exists(engineParameters.InputFile.Filename))
+            if (!engineParameters.InputFile.Filename.StartsWith("http://") && !File.Exists(engineParameters.InputFile.Filename) &&!engineParameters.InputFile.Filename.Contains("%"))
             {
                 throw new FileNotFoundException(Resources.Exception_Media_Input_File_Not_Found, engineParameters.InputFile.Filename);
             }
