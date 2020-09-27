@@ -39,6 +39,13 @@ namespace MediaToolkit
 
             commandBuilder.AppendFormat(" -i \"{0}\" ", inputFile.Filename);
             commandBuilder.AppendFormat(" -vframes {0} ", 1);
+            
+            if (conversionOptions != null
+                && conversionOptions.CustomWidth != null 
+                && conversionOptions.CustomHeight != null) 
+            { 
+                commandBuilder.AppendFormat(" -s {0}*{1} ", conversionOptions.CustomWidth, conversionOptions.CustomHeight);
+            }
 
             return commandBuilder.AppendFormat(" \"{0}\" ", outputFile.Filename).ToString();
         }
